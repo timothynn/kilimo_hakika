@@ -54,86 +54,105 @@
   --color-gate-foreground: var(--gate-foreground);
   --color-statutory: var(--statutory);
   --color-statutory-strong: var(--statutory-strong);
+  --color-action-accent: var(--action-accent);
 }
 
 :root {
   /* --- Kilimo Hakika palette ---------------------------------------
-     Named colors are the six from design-tokens.md. Anything else is
-     derived from ledger paper by lightening/darkening, and is marked.
+     Green system, adapted from the agrivana.framer.ai reference:
 
-       ledger paper   #EDE6D3   background
-       depot ink      #1C2620   primary text
-       proceed green  #2E6B45   verdict: go
-       gate red       #A3321F   verdict: stop
-       gazette brass  #A67C3D   statutory numbers only
-       ash gray       #6E6656   secondary text, borders, dividers
+       pale mint        #ECFEF0   page background
+       near-black green #09190D   primary text
+       deep forest      #052118   stamped buttons
+       lime             #83F675   action accent
+       sage             #526055   secondary text
+
+     The manila/brass "ledger paper" palette it replaces is gone from the
+     surfaces, but gazette brass survives for statutory numbers -- see below.
+
+     Surfaces stay pale and desaturated on purpose. Saturated green is
+     reserved for the PROCEED verdict; if cards and buttons were also
+     saturated green, the verdict would stop meaning anything.
      ----------------------------------------------------------------- */
 
-  --background: #ede6d3; /* ledger paper */
-  --foreground: #1c2620; /* depot ink */
+  --background: #ecfef0; /* pale mint */
+  --foreground: #09190d; /* near-black green -- 17.3:1 on mint */
 
-  --card: #f5f1e4; /* derived: paper lifted, so cards read as a page on a desk */
-  --card-foreground: #1c2620;
-  --popover: #f5f1e4; /* derived */
-  --popover-foreground: #1c2620;
+  --card: #f7fdf8; /* derived: near-white, lifted off the mint page */
+  --card-foreground: #09190d;
+  --popover: #f7fdf8; /* derived */
+  --popover-foreground: #09190d;
 
-  --primary: #1c2620; /* depot ink — buttons are stamped, not colorful */
-  --primary-foreground: #ede6d3;
+  --primary: #052118; /* deep forest -- buttons read as stamped, not candy */
+  --primary-foreground: #ecfef0;
 
-  --secondary: #e0d7bf; /* derived: paper darkened */
-  --secondary-foreground: #1c2620;
-  --muted: #e0d7bf; /* derived */
-  --muted-foreground: #6e6656; /* ash gray */
-  --accent: #e0d7bf; /* derived */
-  --accent-foreground: #1c2620;
+  --secondary: #ddf5e2; /* derived: mint darkened */
+  --secondary-foreground: #09190d;
+  --muted: #ddf5e2; /* derived */
+  --muted-foreground: #526055; /* sage -- 6.3:1 on mint */
+  --accent: #ddf5e2; /* derived */
+  --accent-foreground: #09190d;
 
   /* Deliberately NOT gate red. Destructive = "you are about to lose data".
      Gate red = "the depot will turn you away". Different meanings must not
      share a swatch. This is a deeper oxblood so the two never get confused. */
   --destructive: #6e2214;
 
-  --border: #6e6656; /* ash gray — ruled lines, on purpose. Soften per-use with /40 */
-  --input: #6e6656;
-  --ring: #a67c3d; /* gazette brass */
+  --border: #c3e3cb; /* derived: light mint hairline */
+  --input: #c3e3cb;
+  --ring: #0a412f; /* deep forest. Not lime -- lime on mint is too low
+                      contrast to serve as a visible focus ring. */
 
   --chart-1: #2e6b45;
   --chart-2: #a67c3d;
-  --chart-3: #6e6656;
+  --chart-3: #526055;
   --chart-4: #a3321f;
-  --chart-5: #1c2620;
+  --chart-5: #09190d;
 
-  --radius: 0.375rem; /* squarer than shadcn's default — forms, not consumer app */
+  --radius: 0.375rem; /* squarer than shadcn's default -- forms, not consumer app */
 
-  --sidebar: #e0d7bf;
-  --sidebar-foreground: #1c2620;
-  --sidebar-primary: #1c2620;
-  --sidebar-primary-foreground: #ede6d3;
-  --sidebar-accent: #ede6d3;
-  --sidebar-accent-foreground: #1c2620;
-  --sidebar-border: #6e6656;
-  --sidebar-ring: #a67c3d;
+  --sidebar: #ddf5e2;
+  --sidebar-foreground: #09190d;
+  --sidebar-primary: #052118;
+  --sidebar-primary-foreground: #ecfef0;
+  --sidebar-accent: #ecfef0;
+  --sidebar-accent-foreground: #09190d;
+  --sidebar-border: #c3e3cb;
+  --sidebar-ring: #0a412f;
 
   /* --- Product vocabulary ------------------------------------------
      Verdict + statutory tokens. Never use these decoratively.
      ----------------------------------------------------------------- */
 
-  --proceed: #2e6b45; /* 5.1:1 on ledger paper — passes AA */
-  --proceed-foreground: #ede6d3;
-  --gate: #a3321f; /* 5.6:1 on ledger paper — passes AA */
-  --gate-foreground: #ede6d3;
+  /* The only saturated green in the system. Rendered as a filled block, not
+     as text on a tinted card -- on a green UI, green text does not read as a
+     verdict. 6.1:1 against mint; 6.1:1 for its foreground on itself. */
+  --proceed: #2e6b45;
+  --proceed-foreground: #ecfef0;
+  --gate: #a3321f; /* 6.7:1 against mint */
+  --gate-foreground: #ecfef0;
 
-  /* Brass is 3.0:1 on ledger paper: large text only (>=24px, or >=18.66px
-     bold). For a statutory number at body size use --statutory-strong
-     (4.7:1). Prices are the one thing a farmer must not misread. */
+  /* Gazette brass is kept from the previous palette even though the reference
+     has no gold. It is the "this is the official government figure" signal,
+     and it has to be distinguishable from the verdict green -- which any
+     green would not be. Gold on green also reads as officialdom, so it fits.
+     Brass is 3.6:1 on the card colour: large text only. For a statutory
+     number at body size use --statutory-strong (5.7:1). */
   --statutory: #a67c3d;
   --statutory-strong: #7f5f2f;
+
+  /* Lime, the reference's action accent. Small doses only: progress fill and
+     similar. Not for buttons -- a lime button beside a green verdict competes
+     with it. */
+  --action-accent: #83f675;
 }
 
 /* No .dark block, on purpose.
-   The palette is printed paper — a gazette notice, a depot gate sign. There
-   is no dark equivalent yet, and inverting these values breaks the metaphor
-   and the measured contrast ratios at the same time. If dark mode is wanted,
-   the palette needs to be designed, not derived. See CLAUDE.md.
+   Every ratio above is measured against the pale mint page. Inverting these
+   values invalidates all of them at once, and the verdict tokens are the
+   ones that would suffer -- they have to stay legible. If dark mode is
+   wanted, the palette needs to be designed and re-measured, not derived.
+   See CLAUDE.md.
    The `dark:` variant is still declared above, so shadcn's built-in
    dark: utilities compile; they simply never match. */
 

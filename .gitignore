@@ -1,1 +1,6 @@
 logs/
+
+# SQLite registry — contains farmer personal data, never commit
+database/*.db
+database/*.db-wal
+database/*.db-shm
