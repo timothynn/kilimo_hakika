@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { AuthSplit } from "@/components/auth-split";
 import { FarmerSignUpForm } from "@/components/farmer-auth-forms";
 import { currentFarmer } from "@/lib/session";
 
@@ -11,15 +11,14 @@ export default async function SignUpPage() {
   if (await currentFarmer()) redirect("/check");
 
   return (
-    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-12">
-      <header className="flex flex-col gap-1">
-        <Link href="/" className="text-muted-foreground text-sm underline">
-          Kilimo Hakika
-        </Link>
-        <h1 className="text-2xl">Create an account</h1>
-      </header>
-
+    <AuthSplit
+      image="/img/maize-field.jpg"
+      imageAlt=""
+      eyebrow="For farmers"
+      headline="One account, recognised at the gate"
+      tagline="Your details let the depot officer confirm who you are without paperwork. Checking a depot never requires it."
+    >
       <FarmerSignUpForm />
-    </main>
+    </AuthSplit>
   );
 }

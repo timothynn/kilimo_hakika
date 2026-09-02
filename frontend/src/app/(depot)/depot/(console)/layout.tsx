@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
@@ -16,8 +17,12 @@ export default function ConsoleLayout({
     <div className="flex min-h-full flex-col">
       <header className="border-border border-b">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3">
-          <Link href="/depot" className="font-heading text-lg tracking-wide">
-            Gate console
+          <Logo />
+          <Link
+            href="/depot"
+            className="font-heading text-muted-foreground hover:text-foreground hidden text-sm tracking-wide sm:block"
+          >
+            GATE CONSOLE
           </Link>
           <Separator orientation="vertical" className="bg-border h-5" />
           <nav className="flex items-center gap-4 text-sm">

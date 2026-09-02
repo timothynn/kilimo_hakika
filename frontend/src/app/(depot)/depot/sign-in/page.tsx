@@ -1,15 +1,13 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { Lock, ShieldAlert } from "lucide-react";
 
-export default async function SignInPage({
+import { AuthSplit, IconField } from "@/components/auth-split";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+export const runtime = "nodejs";
+
+export default async function DepotSignInPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; next?: string }>;
@@ -17,53 +15,78 @@ export default async function SignInPage({
   const { error, next } = await searchParams;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-16">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl">Depot officer sign-in</h1>
-        <p className="text-muted-foreground text-sm">
-          Kilimo Hakika gate console
-        </p>
-      </header>
+    <AuthSplit
+      image="/img/farming-kenya.jpg"
+      imageAlt=""
+      eyebrow="Depot officers"
+      headline="Gate console"
+      tagline="Look a farmer up by ID, see the verdict they were given before travelling, and record what they actually collected."
+    >
+      <div className="flex flex-col gap-7">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-4xl sm:text-5xl">Officer sign-in</h2>
+          <p className="text-muted-foreground">
+            Enter the depot passphrase issued by the programme administrator.
+          </p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Enter the depot passphrase</CardTitle>
-          <CardDescription>
-            Shared passphrase, issued by the programme administrator.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            action="/api/depot/sign-in"
-            method="post"
-            className="flex flex-col gap-4"
+        {/* Plain HTML form, no JavaScript needed — a gate terminal on a bad
+            connection should still be able to sign in. */}
+        <form
+          action="/api/depot/sign-in"
+          method="post"
+          className="flex flex-col gap-5"
+        >
+          <input type="hidden" name="next" value={next ?? "/depot"} />
+
+          <IconField
+            id="passphrase"
+            label="Depot passphrase"
+            icon={<Lock className="size-4" />}
           >
-            <input type="hidden" name="next" value={next ?? "/depot"} />
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="passphrase">Passphrase</Label>
-              <Input
-                id="passphrase"
-                name="passphrase"
-                type="password"
-                autoComplete="current-password"
-                className="h-12"
-                required
-              />
-            </div>
+            <Input
+              id="passphrase"
+              name="passphrase"
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••••••"
+              className="h-14 pl-11 text-base"
+              required
+            />
+          </IconField>
 
-            {/* Deliberately vague: never say whether the passphrase exists,
-                only that this attempt failed. */}
-            {error && <p className="text-gate text-sm">Incorrect passphrase.</p>}
+          {/* Deliberately vague: never reveal whether a passphrase exists,
+              only that this attempt failed. */}
+          {error && (
+            <p className="text-gate animate-fade-in text-sm" role="alert">
+              Incorrect passphrase.
+            </p>
+          )}
 
-            <Button type="submit">Sign in</Button>
-          </form>
-        </CardContent>
-      </Card>
+          <Button type="submit" className="h-14 text-base">
+            Sign in to the console
+          </Button>
+        </form>
 
-      <p className="text-muted-foreground text-xs">
-        This console shows farmer personal details. Do not sign in on a shared
-        or public device.
-      </p>
-    </main>
+        <div className="border-border bg-secondary/60 flex gap-3 rounded-lg border p-4">
+          <ShieldAlert className="text-gate mt-0.5 size-5 shrink-0" aria-hidden />
+          <p className="text-muted-foreground text-sm">
+            This console shows farmers&apos; personal details. Do not sign in on
+            a shared or public device, and sign out when you leave the gate.
+          </p>
+        </div>
+
+        <p className="text-muted-foreground text-sm">
+          Are you a farmer?{" "}
+          <Link href="/login" className="text-foreground underline">
+            Farmer sign-in
+          </Link>
+          {" · "}
+          <Link href="/check" className="underline">
+            Check a depot
+          </Link>
+        </p>
+      </div>
+    </AuthSplit>
   );
 }

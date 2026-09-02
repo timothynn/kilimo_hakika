@@ -41,6 +41,29 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 
 **`/check` must stay usable with no account. This is a product rule, not a default.** A farmer deciding whether to spend bus fare should not first have to hand over their national ID. Accounts exist so a depot officer can find someone at the gate; that is the only reason. If a change would require signing in to get a verdict, the change is wrong.
 
+### Logo
+
+`components/logo.tsx` is the brand lockup — mark, then `KILIMO HAKIKA` in Oswald — and it links home from every screen. `tone="dark"` places it over a photograph. Every screen gets exactly one visible instance; the auth screens swap between the photo-side and panel copies at the `lg` breakpoint so a small screen never shows two.
+
+Three things to know before touching it:
+
+- **`public/img/logomark.png` is the Agrivana reference site's mark**, taken from the `logo.svg` that renders as their wordmark lockup. Using another company's mark as this project's brand is a trademark problem, not a licensing one. `SproutMark` in the same file is an original vector drawn for this project; setting `USE_SUPPLIED_MARK = false` swaps to it in one line. That swap should happen before this ships under its own name.
+- **The supplied mark is lime `#83F675`, roughly 1.3:1 against the pale mint page — invisible unaided.** The deep-forest badge behind it is what makes it legible. Do not remove the badge and leave a bare lime mark on a light surface.
+- **The PNG is 22×22.** Crisp at that size, soft on any retina display above it. `SproutMark` is vector and takes its colour from `currentColor`, so it stays sharp and adapts to the surrounding text colour.
+
+### Sign-in screens
+
+`/login`, `/signup` and `/depot/sign-in` share `components/auth-split.tsx`: full-screen split, photograph left, form panel right, stacked on small screens. `IconField` from the same file puts the label in a notch on the input border with a leading icon.
+
+Rules that hold across all three:
+
+- **No social sign-in buttons.** There are no OAuth providers wired up, and a button that fails on click is worse than no button. The farmer screen uses that space for "check a depot without signing in" instead.
+- **No self-serve PIN reset.** There is no SMS gateway to send a code through, and a reset without one is a way in for anyone who knows a farmer's phone number. The copy directs them to a depot officer in person. Add the reset only when there is a channel to verify through.
+- **The officer form is plain HTML with no JavaScript dependency.** A gate terminal on a bad connection still has to be able to sign in.
+- **Photographs are decorative:** empty `alt`, `aria-hidden` overlay, and the panel works if the image never loads. A deep-forest gradient sits over the photo so white type stays legible regardless of the crop.
+
+Entrance animation is keyframes in `globals.css` (`kh-fade-up`, `kh-fade-in`, `kh-slow-zoom`) exposed as `@utility` classes, all disabled inside a `prefers-reduced-motion` block. The photo drift is deliberately slow and small — fast movement behind someone typing a PIN is distracting.
+
 **Depot officer platform.** `/depot` looks a farmer up by full national ID and shows what they were told before travelling. `/depot/farmers` lists the registry. `/depot/farmers/[id]` shows check history and records what the farmer actually collected. A service record is what happened; a check is what we predicted. They are separate tables on purpose, and they are allowed to differ.
 
 ## Architecture
@@ -49,10 +72,12 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 |------|---------|
 | `frontend/` | The Next.js app — both platforms, plus the API routes and the rules engine |
 | `database/` | `scheme_rules.json` (policy), `schema.sql`, `seed.mjs`, and the git-ignored SQLite file |
-| `backend/` | Python triage service (FastAPI): rules engine, identity, market data, assistant. Built in parallel with the Next app, so there are currently **two** rules engines — which one is authoritative is an open decision. Read `docs/design/integration.md` before touching either. |
+| `backend/` | **Two** Python services, built in parallel: `app/` + `main.py` (FastAPI triage, ward-level catchments) and `src/kilimo_hakika/` (triage plus the policy database, identity model, market data and assistant). |
 | `logs/` | Git-ignored |
 
-Data flow: farmer inputs → `POST /api/triage` → engine evaluates against `scheme_rules.json` → verdict + gap list + costing → result screen, and a row in `check_events` so the gate console can see it later.
+**There are three rules engines in this repo, and they disagree.** The TypeScript one in `frontend/src/lib/triage/`, and the two Python ones under `backend/`. For 2.5 acres at NCPB Nakuru the TS engine says 5 bags / 12,500 KES and the `kilimo_hakika` engine says 10 bags / 23,600 KES. A verdict must have one source, so this needs resolving before anything ships. **Read `docs/design/integration.md` before touching any of them** — it has the comparison, the citation evidence, and a proposed migration order.
+
+Data flow (as shipped today): farmer inputs → `POST /api/triage` → the TypeScript engine evaluates against `scheme_rules.json` → verdict + gap list + costing → result screen, and a row in `check_events` so the gate console can see it later.
 
 ### Routes
 

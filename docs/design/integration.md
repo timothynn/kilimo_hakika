@@ -1,11 +1,35 @@
-# Integration: two stacks, one verdict
+# Integration: three engines, one verdict
 
-Status: 2 September 2026. Written after merging `feat/depot-registry` (PR #4)
-into a working tree that already contained the Python service.
+Status: 2 September 2026. Written after merging `feat/depot-registry` (PR #4),
+then revised after PR #5 merged a *second* Python triage service into
+`backend/` while this one was being written.
+
+## The headline
+
+**Three rules engines now exist in this repo and they do not agree.** Asked
+about 2.5 acres at NCPB Nakuru:
+
+| Engine | Allocation | Official total |
+|---|---|---|
+| `frontend/src/lib/triage/` (TypeScript) | 5 bags | 12,500 KES |
+| `backend/src/kilimo_hakika/` (Python) | 10 bags | 23,600 KES |
+| `backend/app/` (Python, PR #5) | its own rules and depot ids again | — |
+
+A farmer betting bus fare on the answer cannot be given three answers, and
+whichever is wrong costs them money. **This is the most important open
+decision in the project** and it should be settled before anything ships.
+
+A third service also means `backend/` now hosts two Python projects at one
+root: `requirements.txt` + `pytest.ini` beside `pyproject.toml` + `uv.lock`,
+and two suites sharing `tests/conftest.py`. They are made to coexist (229
+tests pass together, and `pytest.ini` now carries both paths because it
+silently overrides `pyproject.toml`) but coexisting is not the same as being
+right.
 
 ## What happened
 
-Two complete implementations now exist in this repo, built in parallel:
+Implementations built in parallel, without a shared decision on ownership: the
+Next app's engine, this Python service, and then a third in PR #5.
 
 | | Next.js app (`frontend/`) | Python service (`backend/`) |
 |---|---|---|

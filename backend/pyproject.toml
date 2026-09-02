@@ -33,6 +33,21 @@ packages = ["src/kilimo_hakika"]
 [tool.ruff]
 line-length = 110
 target-version = "py312"
+# This config arrived with src/kilimo_hakika and governs only it. The other
+# service under backend/ (app/, main.py, verify.py, scripts/build_data.py, and
+# its tests) predates it and was written to different conventions; reformatting
+# it to match would be a large diff over someone else's work and no improvement
+# to it. Whoever owns that service decides its tooling. See
+# docs/design/integration.md.
+extend-exclude = [
+    "app",
+    "main.py",
+    "verify.py",
+    "scripts/build_data.py",
+    "tests/test_api.py",
+    "tests/test_data_quality.py",
+    "tests/test_triage.py",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
@@ -48,10 +63,8 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 # An end-to-end assertion reads better on one line than wrapped across three.
 "scripts/smoke_api.py" = ["E501"]
 
-[tool.pytest.ini_options]
-pythonpath = ["src"]
-testpaths = ["tests"]
-filterwarnings = ["error::DeprecationWarning"]
+# pytest is configured in pytest.ini, which pytest reads in preference to this
+# file. Keeping one copy avoids a config that looks right and is ignored.
 
 [tool.mypy]
 python_version = "3.12"

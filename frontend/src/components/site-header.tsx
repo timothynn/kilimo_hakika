@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -9,9 +10,7 @@ export function SiteHeader({ farmerName }: { farmerName?: string }) {
   return (
     <header className="border-border bg-background/80 sticky top-0 z-50 border-b backdrop-blur-md">
       <div className="mx-auto flex w-full max-w-6xl items-center gap-6 px-4 py-3">
-        <Link href="/" className="font-heading text-xl tracking-wide">
-          KILIMO HAKIKA
-        </Link>
+        <Logo />
 
         <nav className="text-muted-foreground hidden items-center gap-6 text-sm md:flex">
           <a href="#problem" className="hover:text-foreground">
