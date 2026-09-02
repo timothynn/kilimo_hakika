@@ -1,0 +1,250 @@
+{
+  "generated_by": "backend/scripts/build_data.py",
+  "structural_authority": "csv-Kenya-Counties-Constituencies-Wards.csv",
+  "authority_rationale": "The CSV is internally consistent (47/290/1450, contiguous ward IDs 1-1450, no duplicate ward names within a constituency, no stray whitespace). county.json carries whitespace damage, a duplicated Nyeri 'Tetu' constituency, merged ward names, SHOUTED casing, and wards attached to the wrong constituency.",
+  "totals": {
+    "counties": 47,
+    "constituencies": 290,
+    "wards": 1450
+  },
+  "curated_csv_corrections": {
+    "wards": {
+      "NJABINI\\KIBURU": "Njabini/Kiburu",
+      "DEDAN KIMANTHI": "Dedan Kimathi",
+      "BUKIRA CENTRL IKEREGE": "Bukira Central/Ikerege",
+      "KAPCKOK": "Kapchok",
+      "MASIG EAST": "Masige East",
+      "SAMETA/ MOKWERERO": "Sameta/Mokwerero",
+      "BOBASI/ BOITANGARE": "Bobasi/Boitangare"
+    },
+    "constituencies": {
+      "CHUKA IGAMBA NG'OMBE": "Chuka/Igambang'ombe",
+      "CHUKA IGAMBA NGOM": "Chuka/Igambang'ombe"
+    },
+    "constituency_id_repairs": {
+      "BARINGO NORTH -> 158": 5
+    }
+  },
+  "legacy_source_audit": {
+    "legacy_ward_entries": 1451,
+    "canonical_ward_entries": 1407,
+    "whitespace_defects_found": 18,
+    "whitespace_defects": [
+      {
+        "level": "ward",
+        "county": "Kwale",
+        "constituency": "Lunga Lunga",
+        "raw_value": " Mwereni"
+      },
+      {
+        "level": "ward",
+        "county": "Kwale",
+        "constituency": "Msambweni",
+        "raw_value": " Ukunda"
+      },
+      {
+        "level": "ward",
+        "county": "Kwale",
+        "constituency": "Matuga",
+        "raw_value": "  Tsimba Golini"
+      },
+      {
+        "level": "ward",
+        "county": "Marsabit",
+        "constituency": "Laisamis",
+        "raw_value": "  Loiyangalani"
+      },
+      {
+        "level": "ward",
+        "county": "Marsabit",
+        "constituency": "North Horr",
+        "raw_value": "  Dukana"
+      },
+      {
+        "level": "ward",
+        "county": "Marsabit",
+        "constituency": "North Horr",
+        "raw_value": " Illeret"
+      },
+      {
+        "level": "constituency",
+        "county": "Tharaka Nithi",
+        "raw_value": "Tharaka "
+      },
+      {
+        "level": "ward",
+        "county": "Uasin Gishu",
+        "constituency": "Soy",
+        "raw_value": "  Moi’s Bridge"
+      },
+      {
+        "level": "ward",
+        "county": "Uasin Gishu",
+        "constituency": "Turbo",
+        "raw_value": "  Ngenyilel"
+      },
+      {
+        "level": "ward",
+        "county": "Laikipia",
+        "constituency": "Laikipia East",
+        "raw_value": " Umande"
+      },
+      {
+        "level": "ward",
+        "county": "Laikipia",
+        "constituency": "Laikipia West",
+        "raw_value": "Township "
+      },
+      {
+        "level": "ward",
+        "county": "Kajiado",
+        "constituency": "Kajiado West",
+        "raw_value": "  Keekonyokie"
+      },
+      {
+        "level": "ward",
+        "county": "Bomet",
+        "constituency": "Bomet Central",
+        "raw_value": " Singorwet"
+      },
+      {
+        "level": "ward",
+        "county": "Bomet",
+        "constituency": "Chepalungu",
+        "raw_value": "  Kong’asis"
+      },
+      {
+        "level": "ward",
+        "county": "Bomet",
+        "constituency": "Chepalungu",
+        "raw_value": " Nyangores"
+      },
+      {
+        "level": "ward",
+        "county": "Bomet",
+        "constituency": "Chepalungu",
+        "raw_value": " Chebunyo"
+      },
+      {
+        "level": "ward",
+        "county": "Bomet",
+        "constituency": "Konoin",
+        "raw_value": " Embomos"
+      },
+      {
+        "level": "ward",
+        "county": "Nairobi",
+        "constituency": "Embakasi West",
+        "raw_value": "Mowlem "
+      }
+    ],
+    "duplicate_constituencies_found": 1,
+    "duplicate_constituencies": [
+      {
+        "county": "Nyeri",
+        "constituency": "Tetu",
+        "occurrences": 2
+      }
+    ],
+    "shouted_casing_defects_found": 74,
+    "shouted_casing_examples": [
+      {
+        "county": "Busia",
+        "constituency": "Teso North",
+        "raw_value": "MALABA CENTRAL"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso North",
+        "raw_value": "MALABA NORTH"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso North",
+        "raw_value": "ANG’URAI SOUTH"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso North",
+        "raw_value": "MALABA SOUTH"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso North",
+        "raw_value": "ANG’URAI NORTH"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso North",
+        "raw_value": "ANG’URAI EAST"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso South",
+        "raw_value": "ANG'OROM"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso South",
+        "raw_value": "CHAKOI SOUTH"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso South",
+        "raw_value": "AMUKURA CENTRAL"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso South",
+        "raw_value": "CHAKOI NORTH"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso South",
+        "raw_value": "AMUKURA EAST"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Teso South",
+        "raw_value": "AMUKURA WEST"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Nambale",
+        "raw_value": "NAMBALE TOWNSHIP"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Nambale",
+        "raw_value": "BUKHAYO NORTH/WALTSI"
+      },
+      {
+        "county": "Busia",
+        "constituency": "Nambale",
+        "raw_value": "BUKHAYO EAST"
+      }
+    ],
+    "merged_ward_repairs": [
+      {
+        "legacy_value": "MATAYOS SOUTHBUSIBWABO",
+        "split_into": [
+          "Matayos South",
+          "Busibwabo"
+        ],
+        "present_in_legacy_source": true,
+        "removed_from_output": true,
+        "components_present_in_output": true
+      },
+      {
+        "legacy_value": "MARACHI WESTKINGANDOLE",
+        "split_into": [
+          "Marachi West",
+          "Kingandole"
+        ],
+        "present_in_legacy_source": true,
+        "removed_from_output": true,
+        "components_present_in_output": true
+      }
+    ]
+  }
+}

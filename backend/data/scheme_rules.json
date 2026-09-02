@@ -1,0 +1,236 @@
+{
+  "scheme_id": "fertilizer_subsidy_2026",
+  "scheme_name": "National Fertilizer Subsidy Programme 2026",
+  "administering_agency": "Ministry of Agriculture and Livestock Development (MOALD)",
+  "distribution_agency": "National Cereals and Produce Board (NCPB)",
+  "source_citation": "MOALD Circular 2026/02 & NCPB Operating Circular 4B",
+  "circular": "MOALD Circular 2026/02",
+  "operating_procedure": "NCPB Circular 4B",
+  "gazette_status": "GAZETTED",
+  "effective_from": "2026-01-15",
+  "effective_to": "2026-12-31",
+  "currency": "KES",
+  "pricing": {
+    "price_per_bag_kes": 2500,
+    "bag_weight_kg": 50,
+    "unit_label": "50kg bag",
+    "price_basis": "Statutory subsidised price payable in person at the NCPB depot counter.",
+    "statutory_notice": "KES 2,500 per 50kg bag is the statutory subsidised price gazetted under MOALD Circular 2026/02. This figure is published for planning purposes only. Kilimo Hakika does not process payments, collect funds, hold money or connect to any mobile money service. Payment is made by the farmer in person at the NCPB depot counter and receipted by NCPB.",
+    "price_is_indicative_only": false,
+    "payments_processed_by_this_service": false
+  },
+  "allocation": {
+    "bags_per_acre_planting": 2,
+    "bags_per_acre_top_dressing": 2,
+    "bags_per_acre_total": 4,
+    "max_bags_per_farmer": 100,
+    "min_acreage_acres": 0.25,
+    "rounding_rule": "floor",
+    "rounding_rationale": "Entitlement is floored to whole bags. Fertilizer is issued only in sealed 50kg bags, and flooring prevents over-allocation of a capped public subsidy.",
+    "basis": "2 bags for planting plus 2 bags for top-dressing per declared acre, i.e. 4 bags per acre, subject to the per-farmer ceiling.",
+    "cap_note": "The 100-bag ceiling is reached at 25.0 declared acres. Acreage above 25 acres does not increase the entitlement.",
+    "min_acreage_note": "A declared acreage below 0.25 acres does not attract a whole bag and cannot be served under this circular."
+  },
+  "required_documents": [
+    {
+      "code": "original_national_id",
+      "label": "Original National ID",
+      "description": "The original Kenyan National Identity Card of the registered farmer. Presented at the depot counter for verification.",
+      "authority": "MOALD Circular 2026/02, Part III (a)",
+      "aliases": [
+        "original national id",
+        "national id",
+        "id",
+        "id card",
+        "original id",
+        "national identity card",
+        "kitambulisho",
+        "original_national_id"
+      ]
+    },
+    {
+      "code": "kiamis_evoucher_sms_code",
+      "label": "KIAMIS E-Voucher SMS Code",
+      "description": "The valid, unexpired e-voucher code issued by SMS following KIAMIS farmer registration.",
+      "authority": "MOALD Circular 2026/02, Part III (b)",
+      "aliases": [
+        "kiamis e-voucher sms code",
+        "kiamis evoucher sms code",
+        "kiamis e voucher",
+        "e-voucher",
+        "evoucher",
+        "voucher",
+        "sms code",
+        "kiamis code",
+        "kiamis",
+        "kiamis_evoucher_sms_code"
+      ]
+    },
+    {
+      "code": "wao_signed_form",
+      "label": "Signed Ward Agricultural Officer (WAO) Form",
+      "description": "The scheme application form countersigned by the Ward Agricultural Officer for the farmer's declared ward.",
+      "authority": "MOALD Circular 2026/02, Part III (c)",
+      "aliases": [
+        "signed ward agricultural officer (wao) form",
+        "signed ward agricultural officer form",
+        "signed wao form",
+        "wao form",
+        "wao",
+        "ward agricultural officer form",
+        "ward officer form",
+        "wao_signed_form"
+      ]
+    }
+  ],
+  "conditional_documents": [
+    {
+      "code": "chiefs_stamped_lease_agreement",
+      "label": "Official Chief's Stamped Lease Agreement",
+      "description": "Where the declared land is leased rather than owned, an official lease agreement bearing the Area Chief's stamp is mandatory.",
+      "authority": "MOALD Circular 2026/02, Part IV (Leased Holdings)",
+      "required_when": "is_land_leased",
+      "required_when_description": "Required only when the farmer declares the land as leased.",
+      "aliases": [
+        "official chief's stamped lease agreement",
+        "chief's stamped lease agreement",
+        "chiefs stamped lease agreement",
+        "stamped lease agreement",
+        "stamped lease",
+        "chief stamped lease",
+        "lease agreement stamped by chief",
+        "chiefs_stamped_lease_agreement"
+      ]
+    }
+  ],
+  "rejection_criteria": [
+    {
+      "code": "id_photocopy_presented",
+      "label": "Photocopy of National ID presented instead of the original",
+      "reason": "NCPB depot clerks are barred from accepting photocopies of the National ID. Only the original document is accepted at the counter.",
+      "authority": "NCPB Circular 4B, Section 2.1",
+      "triggered_by_documents": [
+        "national id photocopy",
+        "id photocopy",
+        "photocopy of national id",
+        "photocopy of id",
+        "copy of national id",
+        "copy of id",
+        "id copy",
+        "photocopy",
+        "national_id_photocopy",
+        "id_photocopy"
+      ],
+      "scope": "always"
+    },
+    {
+      "code": "expired_evoucher",
+      "label": "Expired KIAMIS e-voucher",
+      "reason": "An e-voucher past its validity window is void and cannot be redeemed. A fresh voucher must be requested through KIAMIS before travelling.",
+      "authority": "NCPB Circular 4B, Section 2.4",
+      "triggered_by_documents": [
+        "expired kiamis e-voucher",
+        "expired e-voucher",
+        "expired evoucher",
+        "expired voucher",
+        "expired kiamis code",
+        "expired sms code",
+        "expired_evoucher",
+        "expired_kiamis_evoucher"
+      ],
+      "scope": "always"
+    },
+    {
+      "code": "unstamped_lease_agreement",
+      "label": "Unstamped lease agreement on leased land",
+      "reason": "A lease agreement without the Area Chief's official stamp is not accepted as proof of cultivation rights on leased land.",
+      "authority": "NCPB Circular 4B, Section 3.2",
+      "triggered_by_documents": [
+        "unstamped lease agreement",
+        "unstamped lease",
+        "lease agreement",
+        "lease agreement without stamp",
+        "unsigned lease agreement",
+        "informal lease agreement",
+        "unstamped_lease_agreement",
+        "lease_agreement_unstamped"
+      ],
+      "triggered_by_condition": "is_land_leased_without_stamped_lease",
+      "scope": "leased_land_only"
+    }
+  ],
+  "compliance": {
+    "track": "Government Subsidy & Depot Triage",
+    "engine_type": "deterministic",
+    "agronomic_advice_provided": false,
+    "agronomic_advice_notice": "Kilimo Hakika does not provide crop, soil, seed or fertilizer recommendations of any kind. It reports statutory entitlement, mandatory paperwork and NCPB depot readiness only. Agronomic guidance must be obtained from your Ward Agricultural Officer.",
+    "payments_enabled": false,
+    "payments_notice": "No financial transactions are performed. No mobile money, card or banking integration exists in this service. All published figures are statutory prices only.",
+    "marketplace_enabled": false,
+    "marketplace_notice": "No buying, selling, bidding or third-party vendor listings. Only gazetted Government (NCPB) depots are listed.",
+    "declared_crop_usage": "The declared crop is used solely to confirm that the holding falls inside the gazetted scope of this circular. It never generates an agronomic recommendation, and no alternative crop is ever suggested."
+  },
+  "gazetted_crop_scope": {
+    "enforced": true,
+    "basis": "MOALD Circular 2026/02, Schedule 1 (Eligible Food and Industrial Crops)",
+    "note": "A crop outside Schedule 1 is outside the statutory scope of this subsidy. This is a scope-of-entitlement fact recorded in the circular, not agronomic advice.",
+    "eligible_crops": [
+      "maize",
+      "beans",
+      "wheat",
+      "rice",
+      "sorghum",
+      "millet",
+      "finger millet",
+      "irish potatoes",
+      "sweet potatoes",
+      "soya beans",
+      "green grams",
+      "cowpeas",
+      "pigeon peas",
+      "groundnuts",
+      "sunflower",
+      "barley",
+      "cassava",
+      "tea",
+      "coffee",
+      "sugarcane",
+      "cotton"
+    ],
+    "crop_aliases": {
+      "mahindi": "maize",
+      "corn": "maize",
+      "maize (hybrid)": "maize",
+      "maharagwe": "beans",
+      "common beans": "beans",
+      "ngano": "wheat",
+      "mchele": "rice",
+      "paddy": "rice",
+      "paddy rice": "rice",
+      "mtama": "sorghum",
+      "wimbi": "finger millet",
+      "viazi": "irish potatoes",
+      "potato": "irish potatoes",
+      "potatoes": "irish potatoes",
+      "irish potato": "irish potatoes",
+      "sweet potato": "sweet potatoes",
+      "soya": "soya beans",
+      "soybeans": "soya beans",
+      "soy beans": "soya beans",
+      "ndengu": "green grams",
+      "green gram": "green grams",
+      "mung beans": "green grams",
+      "kunde": "cowpeas",
+      "cowpea": "cowpeas",
+      "pigeon pea": "pigeon peas",
+      "njahi": "pigeon peas",
+      "nduma": "cassava",
+      "muhogo": "cassava",
+      "groundnut": "groundnuts",
+      "peanuts": "groundnuts",
+      "majani": "tea",
+      "kahawa": "coffee",
+      "miwa": "sugarcane"
+    }
+  }
+}
