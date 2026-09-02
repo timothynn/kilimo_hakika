@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Logo } from "@/components/logo";
 import { TriageWizard } from "@/components/triage-wizard";
 import { currentFarmer } from "@/lib/session";
 import { loadRules } from "@/lib/triage/rules";
@@ -25,10 +24,8 @@ export default async function CheckPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">
-      <header className="flex flex-col gap-1">
-        <Link href="/" className="text-muted-foreground text-sm underline">
-          Back to home
-        </Link>
+      <header className="flex flex-col gap-4">
+        <Logo />
         <h1 className="text-3xl">Check a depot</h1>
         <p className="text-muted-foreground">
           {farmer

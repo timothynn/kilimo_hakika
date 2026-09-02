@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { Logo } from "@/components/logo";
 import { Reveal } from "@/components/reveal";
 import { SiteHeader } from "@/components/site-header";
 import { Badge } from "@/components/ui/badge";
@@ -405,9 +406,7 @@ export default async function LandingPage() {
       <footer className="border-border border-t">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-            <span className="font-heading text-lg tracking-wide">
-              KILIMO HAKIKA
-            </span>
+            <Logo />
             <Link href="/check" className="text-sm underline">
               Check a depot
             </Link>
