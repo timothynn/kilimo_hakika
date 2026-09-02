@@ -26,19 +26,24 @@ export function VerdictCard({ result }: { result: TriageResult }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card>
+      <Card className="pt-0">
+        {/* Filled block, not coloured text. The surfaces are green now, so
+            green text would read as decoration; a solid band reads as a
+            stamp. Colour still never carries it alone -- icon and words
+            both say which verdict this is. */}
+        <div
+          className={`flex items-center gap-3 px-6 py-5 ${
+            proceed
+              ? "bg-proceed text-proceed-foreground"
+              : "bg-gate text-gate-foreground"
+          }`}
+        >
+          <Icon className="size-7 shrink-0" aria-hidden />
+          <span className="font-heading text-3xl tracking-wide uppercase">
+            {proceed ? "Proceed" : "Do not travel"}
+          </span>
+        </div>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <Icon
-              className={`size-6 ${proceed ? "text-proceed" : "text-gate"}`}
-              aria-hidden
-            />
-            <CardTitle
-              className={`text-2xl ${proceed ? "text-proceed" : "text-gate"}`}
-            >
-              {proceed ? "Proceed" : "Do not travel"}
-            </CardTitle>
-          </div>
           <CardDescription>
             {proceed
               ? `Your documents meet the requirements for ${result.depot.name}.`
@@ -98,7 +103,7 @@ export function VerdictCard({ result }: { result: TriageResult }) {
             value={kes(result.costing.pricePerBagKes)}
             statutory
           />
-          <Separator className="bg-border/40" />
+          <Separator className="bg-border" />
           <div className="flex items-baseline justify-between">
             <span className="text-sm">Official total</span>
             {/* Large size, so gazette brass clears 3:1 on ledger paper */}

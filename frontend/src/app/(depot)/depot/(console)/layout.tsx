@@ -14,12 +14,12 @@ export default function ConsoleLayout({
 }) {
   return (
     <div className="flex min-h-full flex-col">
-      <header className="border-border/40 border-b">
+      <header className="border-border border-b">
         <div className="mx-auto flex w-full max-w-5xl items-center gap-4 px-4 py-3">
           <Link href="/depot" className="font-heading text-lg tracking-wide">
             Gate console
           </Link>
-          <Separator orientation="vertical" className="bg-border/40 h-5" />
+          <Separator orientation="vertical" className="bg-border h-5" />
           <nav className="flex items-center gap-4 text-sm">
             <Link href="/depot" className="hover:underline">
               Verify arrival

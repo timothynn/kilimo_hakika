@@ -37,12 +37,16 @@ const STEPS = ["Your land", "Your depot", "Your documents"] as const;
 export function TriageWizard({
   depots,
   documents,
+  defaultAcres,
 }: {
   depots: DepotOption[];
   documents: DocumentOption[];
+  /** Prefilled for a signed-in farmer. Still editable — the stored figure
+      may be stale, and people farm more than one parcel. */
+  defaultAcres?: number;
 }) {
   const [step, setStep] = useState(0);
-  const [acres, setAcres] = useState("");
+  const [acres, setAcres] = useState(defaultAcres ? String(defaultAcres) : "");
   const [depotId, setDepotId] = useState("");
   const [held, setHeld] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -154,7 +158,7 @@ export function TriageWizard({
               <Label
                 key={depot.id}
                 htmlFor={depot.id}
-                className="border-border/60 hover:bg-secondary/60 flex cursor-pointer items-center gap-3 rounded-md border p-4"
+                className="border-border hover:bg-secondary flex cursor-pointer items-center gap-3 rounded-md border p-4"
               >
                 <RadioGroupItem value={depot.id} id={depot.id} />
                 <span className="flex flex-col">
@@ -178,7 +182,7 @@ export function TriageWizard({
               <Label
                 key={document.id}
                 htmlFor={document.id}
-                className="border-border/60 hover:bg-secondary/60 flex cursor-pointer items-start gap-3 rounded-md border p-4"
+                className="border-border hover:bg-secondary flex cursor-pointer items-start gap-3 rounded-md border p-4"
               >
                 <Checkbox
                   id={document.id}

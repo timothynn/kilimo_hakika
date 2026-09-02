@@ -106,7 +106,7 @@ export default async function FarmerDetailPage({
                       ))}
                     </div>
                   )}
-                  <Separator className="bg-border/40" />
+                  <Separator className="bg-border" />
                 </div>
               );
             })}
