@@ -88,38 +88,31 @@ The visual language is government paperwork — a gazette notice, a depot gate s
 
 ### Color
 
-| Name | Hex | HSL | Role |
-|---|---|---|---|
-| Ledger paper | `#EDE6D3` | `44 42% 88%` | Background — sun-bleached manila, not stock cream |
-| Depot ink | `#1C2620` | `144 15% 13%` | Primary text — dark bottle-green-black, not pure black |
-| Proceed green | `#2E6B45` | `143 40% 30%` | Status: go (muted signal green, not candy-bright) |
-| Gate red | `#A3321F` | `9 68% 38%` | Status: stop (brick-toned ink-stamp red, not alarm red) |
-| Gazette brass | `#A67C3D` | `36 46% 45%` | Statutory numbers only — prices, caps, allocations |
-| Ash gray | `#6E6656` | `40 12% 38%` | Secondary text, borders, dividers |
+| Name | Hex | Role |
+|---|---|---|
+| Ledger paper | `#EDE6D3` | Background — sun-bleached manila, not stock cream |
+| Depot ink | `#1C2620` | Primary text — dark bottle-green-black, not pure black |
+| Proceed green | `#2E6B45` | Status: go (muted signal green, not candy-bright) |
+| Gate red | `#A3321F` | Status: stop (brick-toned ink-stamp red, not alarm red) |
+| Gazette brass | `#A67C3D` | Statutory numbers only — prices, caps, allocations |
+| Ash gray | `#6E6656` | Secondary text, borders, dividers |
 
-Mapped onto shadcn's variable names:
+These live in `frontend/src/app/globals.css`, mapped onto shadcn's variable names. Tailwind v4 takes full color values, not the bare HSL triplets that Tailwind v3 shadcn used — so the vars hold hex directly.
 
-```css
-:root {
-  --background: 44 42% 88%;        /* ledger paper */
-  --foreground: 144 15% 13%;       /* depot ink */
-  --card: 44 42% 88%;
-  --card-foreground: 144 15% 13%;
-  --primary: 144 15% 13%;
-  --primary-foreground: 44 42% 88%;
-  --muted-foreground: 40 12% 38%;  /* ash gray */
-  --border: 40 12% 38%;
-  --input: 40 12% 38%;
-  --ring: 36 46% 45%;
+Product vocabulary is registered in the `@theme inline` block so `bg-proceed`, `text-gate`, and `text-statutory` compile as utilities:
 
-  /* product vocabulary — not stock shadcn vars */
-  --proceed: 143 40% 30%;          /* verdict: PROCEED */
-  --gate: 9 68% 38%;               /* verdict: DO NOT TRAVEL */
-  --statutory: 36 46% 45%;         /* gazette brass */
-}
-```
+| Var | Value | Use |
+|---|---|---|
+| `--proceed` | `#2E6B45` | Verdict: PROCEED |
+| `--gate` | `#A3321F` | Verdict: DO NOT TRAVEL |
+| `--statutory` | `#A67C3D` | Statutory numbers, large text only |
+| `--statutory-strong` | `#7F5F2F` | Statutory numbers at body size (contrast-safe) |
 
-`--destructive` is *not* the verdict red. `DO NOT TRAVEL` is a factual status, not a destructive action or an app error. Keep `--gate` separate so a delete button and a depot verdict never share a token.
+Anything outside the six named colors is derived from ledger paper by lightening (`--card` `#F5F1E4`) or darkening (`--muted` / `--secondary` `#E0D7BF`), and is commented as derived in the CSS.
+
+`--destructive` (`#6E2214`, deep oxblood) is deliberately *not* gate red. Destructive means "you are about to lose data"; gate red means "the depot will turn you away." Different meanings must not share a swatch, so a delete button and a depot verdict can never be confused.
+
+`--radius` is `0.375rem`, squarer than shadcn's `0.625rem` default — this is a government form, not a consumer app.
 
 Token usage rules:
 
@@ -139,7 +132,7 @@ Measured against ledger paper `#EDE6D3`:
 | Ash gray | 4.6:1 | passes AA, barely — do not lighten |
 | Gazette brass | **3.0:1** | **fails AA for body text** |
 
-Gazette brass fails normal-text AA, and it's the token assigned to prices — the numbers a farmer most needs to read correctly. Use it only at large-text sizes (≥18.66px bold or ≥24px), which it does pass at 3:1. For a brass price in body-size text, darken toward `36 46% 34%` (~4.7:1) instead of shipping the fail.
+Gazette brass fails normal-text AA, and it's the token assigned to prices — the numbers a farmer most needs to read correctly. Use it only at large-text sizes (≥18.66px bold or ≥24px), which it does pass at 3:1. For a brass price in body-size text use `--statutory-strong` (`#7F5F2F`, ~4.7:1) instead of shipping the fail.
 
 ### Typography
 
@@ -148,24 +141,41 @@ Gazette brass fails normal-text AA, and it's the token assigned to prices — th
 | Headers / labels | Oswald or Barlow Condensed | Condensed, authoritative — evokes depot/gate signage |
 | Body copy | Source Sans 3 or Inter | Plain, highly legible — no serif or decorative faces |
 
-Self-host both. Farmers on intermittent connectivity should not be waiting on a Google Fonts CDN, and a condensed header falling back to a system font loses the signage feel entirely.
+Wired up as Oswald (`--font-heading`) and Source Sans 3 (`--font-sans`) via `next/font/google`, which downloads and self-hosts them at build time — no runtime CDN request. Farmers on intermittent connectivity should not wait on Google Fonts, and a condensed header falling back to a system font loses the signage feel entirely.
+
+`h1`–`h6` get `font-heading` in the base layer. Labels can opt in with `font-heading`.
 
 ### Dark mode
 
 This token set is light-only by design — it's printed paper. There is no dark equivalent yet, and inverting it would break the whole metaphor. Do not add a `.dark` block by guessing values; if dark mode is wanted, the palette needs to be designed, not derived. Earlier guidance to "support light and dark" is superseded by this.
 
-## Stack — TBD
+## Stack
 
-Confirm before assuming:
+Decided:
 
-- Frontend build: Next.js vs. Vite + React
-- Backend language / framework — Python + FastAPI is the natural fit if the rules engine stays Python, but not yet decided
-- Package manager
+| Piece | Choice |
+|---|---|
+| Frontend | Next.js 16, App Router, TypeScript, `src/` dir, `@/*` alias |
+| Styling | Tailwind CSS v4 (CSS-first config, no `tailwind.config.js`) |
+| Components | shadcn/ui, `radix-nova` style, radix base, lucide icons |
+| Forms | `react-hook-form` + `zod` + `@hookform/resolvers` |
+| Package manager | npm |
+| Lint | ESLint via `eslint-config-next` (`npm run lint`) |
+
+Still TBD:
+
+- Backend language / framework — Python + FastAPI is the natural fit if the rules engine stays Python, but not decided
 - Test runner
-- Lint / format toolchain
+- Formatter (Prettier not installed)
 - Deployment target
 
-Update this section as decisions land.
+### Frontend gotchas
+
+- `frontend/AGENTS.md` and `frontend/CLAUDE.md` are generated by Next 16 and rewritten by `next dev`. They are not the project brief — this file is. Don't bother deleting them.
+- Components import from the unified `radix-ui` package (`import { Slot } from "radix-ui"`), not per-primitive `@radix-ui/react-*` packages. Match that style when hand-writing a component.
+- `src/components/ui/form.tsx` was hand-written: the shadcn CLI silently no-ops on `add form` under this preset. If you regenerate components, don't expect the CLI to produce it.
+- `npx tsc --noEmit` alone reports `Cannot find name 'LayoutProps'`. That global comes from Next's generated types, so typecheck via `npm run build` instead.
+- Update this section as decisions land.
 
 ## Conventions
 
