@@ -118,6 +118,7 @@ REQUIRED_DOCUMENTS: list[dict[str, Any]] = SCHEME["required_documents"]
 CONDITIONAL_DOCUMENTS: list[dict[str, Any]] = SCHEME["conditional_documents"]
 REJECTION_CRITERIA: list[dict[str, Any]] = SCHEME["rejection_criteria"]
 CROP_SCOPE: dict[str, Any] = SCHEME["gazetted_crop_scope"]
+PAYMENT_AT_DEPOT: dict[str, Any] = SCHEME["payment_at_depot"]
 
 # Document alias key -> canonical document code. Built from both the mandatory
 # and the conditional document definitions, plus each document's own code and

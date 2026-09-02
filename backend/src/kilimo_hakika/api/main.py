@@ -12,7 +12,7 @@ from ..assistant import corpus
 from ..packs.repository import repository
 from ..persistence import db
 from ..settings import get_settings
-from .routes import assistant, auth, market, profile, reference, triage
+from .routes import assistant, auth, profile, reference, triage
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def create_app() -> FastAPI:
         title="Kilimo Hakika API",
         version="1.0.0",
         description=(
-            "Deterministic depot triage, identity, market data and the assistant. "
+            "Deterministic depot triage, identity and the assistant. "
             "The verdict path contains no model call and no live database read."
         ),
         lifespan=lifespan,
@@ -84,7 +84,6 @@ def create_app() -> FastAPI:
         auth.router,
         profile.router,
         triage.router,
-        market.router,
         assistant.router,
     ):
         app.include_router(router, prefix="/api/v1")

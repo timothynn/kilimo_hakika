@@ -1,12 +1,26 @@
 import { NextResponse } from "next/server";
 
+import {
+  DepotApiError,
+  runTriage,
+  type ApiTriageRequest,
+  type ApiTriageResponse,
+} from "@/lib/depot-api";
 import { findFarmerByNationalId, recordCheck } from "@/lib/db";
-import { triage, UnknownDepotError } from "@/lib/triage/engine";
-import { loadRules } from "@/lib/triage/rules";
 import { triageInputSchema } from "@/lib/triage/schema";
 
 export const runtime = "nodejs";
 
+/**
+ * Run a depot readiness check.
+ *
+ * This route decides nothing. It validates the farmer's answers, forwards them
+ * to the FastAPI verdict engine, and adapts the reply for the UI. There is
+ * deliberately no local fallback engine: two engines meant two verdicts for the
+ * same farmer, which is the one failure this product cannot survive. If the
+ * engine is unreachable we say so plainly rather than guessing — a farmer
+ * betting bus fare deserves "I don't know" over a confident wrong answer.
+ */
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -24,40 +38,91 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const input = parsed.data;
 
-  let result;
+  const upstream: ApiTriageRequest = {
+    county: input.county,
+    constituency: input.constituency,
+    ward: input.ward,
+    target_depot_id: input.depotId,
+    acreage: input.acres,
+    documents_held: documentsFor(input),
+    is_land_leased: input.isLandLeased,
+    // Only meaningful on leased land; sent as false otherwise so an owned
+    // holding can never be read as having lease paperwork.
+    has_stamped_lease: input.isLandLeased && input.hasStampedLease,
+  };
+
+  let verdict: ApiTriageResponse;
   try {
-    result = triage(loadRules(), parsed.data);
+    verdict = await runTriage(upstream);
   } catch (error) {
-    if (error instanceof UnknownDepotError) {
-      return NextResponse.json({ error: error.message }, { status: 404 });
+    if (error instanceof DepotApiError) {
+      return NextResponse.json(
+        {
+          error: error.message,
+          unreachable: error.unreachable,
+          detail: error.detail,
+        },
+        { status: error.unreachable ? 503 : error.status }
+      );
     }
     throw error;
   }
 
-  // Optional: link the check to a registered farmer so a depot officer can
-  // see what the farmer was told before they travelled. Anonymous checks are
-  // still allowed — a farmer should not have to register to get an answer.
-  const nationalId =
-    typeof body === "object" && body !== null && "nationalId" in body
-      ? String((body as { nationalId: unknown }).nationalId ?? "")
+  // Link the check to a registered farmer so a depot officer can see what the
+  // farmer was told before they travelled. Anonymous checks stay allowed — a
+  // farmer must never have to register to get an answer.
+  const nationalIdNumber =
+    typeof body === "object" && body !== null && "nationalIdNumber" in body
+      ? String((body as { nationalIdNumber: unknown }).nationalIdNumber ?? "")
       : "";
 
   let farmerId: string | null = null;
-  if (/^\d{7,9}$/.test(nationalId)) {
-    farmerId = findFarmerByNationalId(nationalId)?.id ?? null;
+  if (/^\d{7,9}$/.test(nationalIdNumber)) {
+    farmerId = findFarmerByNationalId(nationalIdNumber)?.id ?? null;
   }
 
   recordCheck({
     farmerId,
-    depotId: result.depot.id,
-    acres: result.acres,
-    verdict: result.verdict,
-    bags: result.costing.bags,
-    totalKes: result.costing.totalKes,
-    missing: result.missing.map((m) => ({ id: m.id, label: m.label })),
-    rulesVersion: result.rulesVersion,
+    depotId: verdict.depot.depot_id,
+    acres: input.acres,
+    verdict: verdict.verdict.status,
+    bags: verdict.financial_breakdown.allocated_bags,
+    totalKes: verdict.financial_breakdown.total_cost_kes,
+    missing: verdict.gap_analysis.missing_documents.map((label) => ({
+      id: label,
+      label,
+    })),
+    rulesVersion: `${verdict.policy_grounding.circular} / ${verdict.policy_grounding.operating_procedure}`,
   });
 
-  return NextResponse.json(result);
+  return NextResponse.json(verdict);
+}
+
+/**
+ * Translate the wizard's answers into the document vocabulary the engine
+ * speaks. A photocopy is not a weaker version of the original — it is an
+ * actively disqualifying item, so it is declared rather than omitted, and the
+ * engine returns the documented refusal for it.
+ */
+function documentsFor(input: {
+  nationalId: "original" | "photocopy" | "none";
+  hasEvoucher: boolean;
+  hasWaoForm: boolean;
+  isLandLeased: boolean;
+  hasStampedLease: boolean;
+}): string[] {
+  const held: string[] = [];
+
+  if (input.nationalId === "original") held.push("original_national_id");
+  if (input.nationalId === "photocopy") held.push("national_id_photocopy");
+
+  if (input.hasEvoucher) held.push("kiamis_evoucher_sms_code");
+  if (input.hasWaoForm) held.push("wao_signed_form");
+  if (input.isLandLeased && input.hasStampedLease) {
+    held.push("chiefs_stamped_lease_agreement");
+  }
+
+  return held;
 }

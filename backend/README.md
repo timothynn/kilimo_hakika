@@ -126,7 +126,7 @@ The four specified blocks, plus additive detail for the UI:
                             "total_cost_kes": 45000, "statutory_notice": "..." },
   "policy_grounding":     { "circular": "MOALD Circular 2026/02",
                             "depot_status": "ACTIVE - Open and issuing subsidised fertilizer",
-                            "operating_procedure": "NCPB Circular 4B" },
+                            "operating_procedure": "NCPB Operating Circular 4B" },
 
   "resolved_location":    { "county": "Uasin Gishu", "county_code": 27, "ward_id": 701, "...": "" },
   "depot":                { "...": "full depot record" },

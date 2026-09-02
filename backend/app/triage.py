@@ -425,13 +425,23 @@ def _entitlement_blockers(allocation: dict[str, Any]) -> list[Blocker]:
     ]
 
 
-def _crop_scope_blockers(crop_type: str) -> tuple[list[Blocker], bool]:
+def _crop_scope_blockers(crop_type: str | None) -> tuple[list[Blocker], bool | None]:
     """
     Confirm the declared crop is inside the circular's crop schedule.
 
     This is a scope-of-entitlement check against a published list, not an
     agronomic assessment. No alternative crop is ever suggested.
+
+    The crop is optional. The farmer wizard deliberately does not ask for it -
+    none of the three questions the product answers depends on it, and putting
+    a crop question in front of a farmer invites the reading that the service
+    is assessing their farming choices. When it is omitted the check is skipped
+    and `crop_within_gazetted_scope` is null rather than false, so "not
+    declared" is never confused with "outside the schedule".
     """
+    if crop_type is None or not crop_type.strip():
+        return [], None
+
     if not repo.CROP_SCOPE.get("enforced"):
         return [], True
 
@@ -553,8 +563,10 @@ def _build_next_steps(
             f"({depot['operating_hours']}).",
             "Present your original National ID, KIAMIS e-voucher SMS code and "
             "signed WAO form at the counter.",
-            "Pay the statutory amount at the counter and collect an official "
-            "NCPB receipt.",
+            "Do NOT carry cash - it is not accepted. Pay to the NCPB till "
+            "number displayed at the depot, or deposit at the bank the depot "
+            "manager names, and keep the receipt.",
+            "Collect your fertilizer and an official NCPB receipt.",
         ]
 
     steps: list[str] = []
@@ -579,7 +591,7 @@ def run_triage(
     ward: str,
     target_depot_id: str,
     acreage: float,
-    crop_type: str,
+    crop_type: str | None = None,
     documents_held: list[str],
     is_land_leased: bool,
     has_stamped_lease: bool,
@@ -689,6 +701,16 @@ def run_triage(
         "alternative_depots": [_serialize_depot(d) for d in alternatives],
         "declared_crop": crop_type,
         "crop_within_gazetted_scope": crop_in_scope,
+        # Always present, on PROCEED as much as on DO_NOT_TRAVEL. A farmer who
+        # has just been told to travel is exactly the one about to set off with
+        # the wrong means of payment.
+        "payment_notice": {
+            "headline": repo.PAYMENT_AT_DEPOT["headline"],
+            "notice": repo.PAYMENT_AT_DEPOT["notice"],
+            "accepted_means": list(repo.PAYMENT_AT_DEPOT["accepted_means"]),
+            "authority": repo.PAYMENT_AT_DEPOT["authority"],
+            "cash_accepted_at_depot": repo.PAYMENT_AT_DEPOT["cash_accepted_at_depot"],
+        },
         "next_steps": _build_next_steps(unique_blockers, depot, will_be_served),
         "compliance": compliance_notice(),
     }

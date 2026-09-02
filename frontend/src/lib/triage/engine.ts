@@ -22,6 +22,17 @@ export class UnknownRequirementError extends Error {
 }
 
 /**
+ * NOT THE VERDICT PATH.
+ *
+ * Farmer-facing verdicts come from the FastAPI engine via `src/lib/depot-api.ts`
+ * and `app/api/triage/route.ts`. This module survives only as a tested,
+ * dependency-free reference implementation of the same statutory math, kept
+ * because its `anyOf` document-group modelling is worth porting upstream.
+ *
+ * Do not reconnect it to a route. Two engines meant two verdicts for the same
+ * farmer, and that is the one failure this product cannot survive. See
+ * docs/design/integration.md.
+ *
  * Evaluate a farmer's situation against the scheme rules.
  *
  * Pure and deterministic: same inputs, same output, every time. No I/O, no
@@ -79,12 +90,27 @@ export function triage(rules: SchemeRules, input: TriageInput): TriageResult {
     }
   }
 
-  const { bagsPerAcre, maxBags, pricePerBagKes, unit } = depot.allocation;
+  const { bagsPerAcre, topDressingBagsPerAcre, maxBags, pricePerBagKes, unit } =
+    depot.allocation;
 
   // Floor, not round: a farmer allocated a partial bag gets whole bags only,
   // and rounding up would quote a total the depot will refuse to honour.
-  const entitledByAcreage = Math.floor(input.acres * bagsPerAcre);
+  //
+  // Round to 6dp before flooring. Acreage is a float, and 0.7 * 4 evaluates to
+  // 2.8000000000000003 in binary floating point; naive flooring of similar
+  // products can silently shave a whole bag off a farmer's entitlement.
+  const entitledByAcreage = Math.floor(
+    Number((input.acres * bagsPerAcre).toFixed(6))
+  );
   const bags = Math.min(entitledByAcreage, maxBags);
+
+  // Split the award back into its statutory halves. When the ceiling bites,
+  // it is shared pro rata rather than taken off one half, and the planting
+  // share absorbs any odd bag so the two always sum to `bags`.
+  const topDressingBags = Math.floor(
+    (bags * topDressingBagsPerAcre) / bagsPerAcre
+  );
+  const plantingBags = bags - topDressingBags;
 
   return {
     verdict: missing.length === 0 ? "PROCEED" : "DO_NOT_TRAVEL",
@@ -98,10 +124,12 @@ export function triage(rules: SchemeRules, input: TriageInput): TriageResult {
     missing,
     costing: {
       bags,
+      plantingBags,
+      topDressingBags,
       unit,
       pricePerBagKes,
       totalKes: bags * pricePerBagKes,
-      cappedByDepotCeiling: entitledByAcreage > maxBags,
+      cappedByStatutoryCeiling: entitledByAcreage > maxBags,
       maxBags,
       bagsPerAcre,
     },

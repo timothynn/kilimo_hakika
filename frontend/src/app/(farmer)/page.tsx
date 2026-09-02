@@ -23,15 +23,23 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { currentFarmer } from "@/lib/session";
-import { loadRules } from "@/lib/triage/rules";
+import { DepotApiError, getDepots } from "@/lib/depot-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
-  const rules = loadRules();
   const farmer = await currentFarmer();
-  const depotCount = rules.depots.length;
+
+  // Shown in the hero badge. The landing page is the marketing surface and
+  // must render even when the verdict engine is down, so a failure here just
+  // drops the count rather than the page.
+  let depotCount: number | null = null;
+  try {
+    depotCount = (await getDepots()).count;
+  } catch (error) {
+    if (!(error instanceof DepotApiError)) throw error;
+  }
 
   return (
     <div className="flex min-h-full flex-col">
@@ -46,7 +54,10 @@ export default async function LandingPage() {
               className="text-muted-foreground w-fit gap-2 py-1"
             >
               <Landmark className="size-3.5" aria-hidden />
-              {depotCount} government depots · rules version {rules.version}
+              {depotCount === null
+                ? "Government depots nationwide"
+                : `${depotCount} government depots`}{" "}
+              · MOALD Circular 2026/02
             </Badge>
 
             <h1 className="text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
@@ -419,8 +430,9 @@ export default async function LandingPage() {
           </div>
 
           <p className="text-muted-foreground max-w-3xl text-sm">
-            Requirements and prices are read from official circulars, currently{" "}
-            {rules.version}. Each rule on a result screen cites its source so
+            Requirements and prices are read from official circulars, currently
+            MOALD Circular 2026/02 and NCPB Operating Circular 4B. Each rule on
+            a result screen cites its source so
             you can check it yourself. If a circular changes and this tool has
             not caught up, the circular is right and we are wrong.
           </p>

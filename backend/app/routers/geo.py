@@ -54,6 +54,44 @@ def list_counties() -> dict[str, object]:
 
 
 @router.get(
+    "/constituencies",
+    summary="Constituencies within a county",
+    description=(
+        "The middle level of the cascading dropdown. Kept separate from "
+        "/hierarchy so a low-bandwidth client can fetch one county's worth "
+        "(a few hundred bytes) instead of the whole 47/290/1450 tree."
+    ),
+)
+def list_constituencies(
+    county: str = Query(description="County name, e.g. 'Uasin Gishu'."),
+) -> dict[str, object]:
+    county_record = repo.find_county(county)
+    if county_record is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "field": "county",
+                "message": f"Unknown county {county!r}.",
+                "valid_options": repo.county_names(),
+            },
+        )
+
+    return {
+        "county": county_record["county_name"],
+        "county_code": county_record["county_code"],
+        "count": len(county_record["constituencies"]),
+        "constituencies": [
+            {
+                "constituency_id": c["constituency_id"],
+                "constituency_name": c["constituency_name"],
+                "ward_count": len(c["wards"]),
+            }
+            for c in county_record["constituencies"]
+        ],
+    }
+
+
+@router.get(
     "/wards",
     summary="Wards within a county and constituency",
     description=(

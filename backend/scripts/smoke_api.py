@@ -36,7 +36,7 @@ print(f"        required always: {always}")
 print("\n== 2. anonymous triage: a verdict without an account ==")
 # Product rule, from CLAUDE.md: /check must stay usable with no account. A farmer
 # deciding whether to spend bus fare should not first have to hand over an ID.
-# Signing in adds history, gap tracking, market data and the assistant — and only
+# Signing in adds history, gap tracking and the assistant — and only
 # those. ALLOW_ANONYMOUS_TRIAGE=false inverts this in one line.
 r = c.post(f"{BASE}/triage", json={"depot_code": "NCPB-NAKURU", "acreage_acres": 2, "held_documents": []})
 check("anonymous triage 200", r.status_code == 200, r.text[:200])
@@ -76,7 +76,7 @@ check("ACCOUNT consent recorded", me["consents"]["ACCOUNT"] is True)
 # where this script controls it.
 check(
     "consent map covers every purpose",
-    set(me["consents"]) == {"ACCOUNT", "ANALYTICS", "ASSISTANT_AI", "MARKET_NOTIFICATIONS"},
+    set(me["consents"]) == {"ACCOUNT", "ANALYTICS", "ASSISTANT_AI"},
     sorted(me["consents"]),
 )
 check("consent values are booleans", all(isinstance(v, bool) for v in me["consents"].values()))
@@ -171,24 +171,6 @@ r = c.patch(
 )
 check("gap marked resolved", r.json()["gap_state"]["EVOUCHER_CODE"] == "RESOLVED", r.text[:200])
 
-print("\n== 10. market data ==")
-r = c.get(f"{BASE}/market/prices", headers=H)
-mk = r.json()
-check("prices 200", r.status_code == 200, r.text[:200])
-check("quotes returned", len(mk["quotes"]) == 4, len(mk.get("quotes", [])))
-check("all SUPPLIER_DECLARED", all(q["price_authority"] == "SUPPLIER_DECLARED" for q in mk["quotes"]))
-check("every quote names its organisation", all(q["organisation"]["name"] for q in mk["quotes"]))
-check("disclaimer present", "not government prices" in mk["disclaimer"])
-dap_market = next(q for q in mk["quotes"] if q["product_code"] == "DAP" and q["quote_kind"] == "RETAIL")
-check("commercial price above gazetted", dap_market["price_kes"] > 2500)
-print(
-    f"        gazetted DAP 2,500 vs retail {dap_market['price_kes']:,.0f} ({dap_market['organisation']['name']})"
-)
-
-r = c.get(f"{BASE}/market/signals", headers=H)
-check("signals returned", len(r.json()["signals"]) == 2, len(r.json().get("signals", [])))
-check("signal attributed", r.json()["signals"][0]["organisation"]["kind"] == "SUPPLIER_ASSOCIATION")
-
 print("\n== 11. citations ==")
 r = c.get(f"{BASE}/citations/NCPB-FAQ-2022-10-Q8")
 check("citation fetched", r.status_code == 200 and "two bags" in r.json()["verbatim_extract"], r.text[:200])
@@ -227,12 +209,12 @@ staff_h = {"Authorization": f"Bearer {r.json()['access_token']}"}
 r = c.get(f"{BASE}/me", headers=staff_h)
 check("publisher has policy.publish", "policy.publish" in r.json()["permissions"])
 check("publisher cannot author policy", "policy.author" not in r.json()["permissions"])
-r = c.get(f"{BASE}/market/prices", headers=staff_h)
+r = c.get(f"{BASE}/reference", headers=staff_h)
 # Every account is granted the baseline `farmer` role at signup, and that role
-# carries `market.read`. Supplier-declared prices are public information by
+# carries the base read permissions. Published policy is public by
 # design, so a staff account reading them is correct, not a leak. The consent
 # gate below is the assertion that actually guards something.
-check("publisher inherits market.read via farmer role -> 200", r.status_code == 200, r.status_code)
+check("publisher can read published policy -> 200", r.status_code == 200, r.status_code)
 
 print("\n== 14. RLS: one farmer cannot see another's history ==")
 r = c.post(f"{BASE}/auth/otp/start", json={"phone": "0798765432"})

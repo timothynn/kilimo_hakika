@@ -6,7 +6,7 @@ issuer's own bookkeeping.
 
 `user_connection(claims)` opens a transaction as the `authenticated` role with
 the caller's verified JWT claims installed, so every RLS policy in `identity`,
-`market` and `ai` evaluates against the real user. Permission checks in the API
+`ai` evaluates against the real user. Permission checks in the API
 layer are the first gate; this is the one that holds if that gate has a bug.
 """
 

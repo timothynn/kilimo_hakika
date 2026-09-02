@@ -17,7 +17,6 @@ ALL_TOOLS = [
     {"name": "search_policy"},
     {"name": "get_document_guidance"},
     {"name": "get_triage_verdict"},
-    {"name": "get_market_signals"},
 ]
 
 
@@ -115,7 +114,7 @@ def test_visitor_gets_only_public_policy_tools() -> None:
     assert sorted(t["name"] for t in scope.tools) == ["get_document_guidance", "search_policy"]
 
 
-@pytest.mark.parametrize("withheld", ["get_triage_verdict", "get_market_signals"])
+@pytest.mark.parametrize("withheld", ["get_triage_verdict"])
 def test_visitor_cannot_reach_anything_personal(withheld: str) -> None:
     scope = scopes.resolve(user_id=None, roles=None, permissions=None, all_tools=ALL_TOOLS)
     assert scope.allows(withheld) is False
@@ -129,16 +128,15 @@ def test_visitor_prompt_points_at_the_free_check_and_refuses_verdicts() -> None:
     assert "Do not give a depot verdict" in guidance
 
 
-def test_farmer_gains_the_verdict_and_market_tools() -> None:
+def test_farmer_gains_the_verdict_tool() -> None:
     scope = scopes.resolve(
         user_id="u1",
         roles={"farmer"},
-        permissions={"triage.run", "market.read", "assistant.chat"},
+        permissions={"triage.run", "assistant.chat"},
         all_tools=ALL_TOOLS,
     )
     assert scope.audience is Audience.FARMER
     assert scope.allows("get_triage_verdict")
-    assert scope.allows("get_market_signals")
 
 
 def test_a_permission_a_role_lacks_is_still_withheld() -> None:
@@ -148,7 +146,6 @@ def test_a_permission_a_role_lacks_is_still_withheld() -> None:
     )
     assert scope.audience is Audience.FARMER
     assert scope.allows("get_triage_verdict") is False
-    assert scope.allows("get_market_signals") is False
 
 
 @pytest.mark.parametrize(
@@ -175,7 +172,7 @@ def test_every_tier_names_the_pseudonym_and_never_asks_for_identifiers() -> None
         scope = scopes.resolve(
             user_id=None if audience is Audience.VISITOR else "u1",
             roles=roles or None,
-            permissions={"triage.run", "market.read"},
+            permissions={"triage.run"},
             all_tools=ALL_TOOLS,
         )
         guidance = scope.guidance()
@@ -188,7 +185,7 @@ def test_an_unmapped_tool_is_withheld_rather_than_published() -> None:
     scope = scopes.resolve(
         user_id="u1",
         roles={"farmer"},
-        permissions={"triage.run", "market.read"},
+        permissions={"triage.run"},
         all_tools=[*ALL_TOOLS, {"name": "delete_everything"}],
     )
     assert scope.allows("delete_everything") is False
@@ -201,3 +198,41 @@ def _role_for(audience: Audience) -> str:
         Audience.ASSOCIATION: "supplier_association",
         Audience.STAFF: "admin",
     }[audience]
+
+
+def test_no_tier_can_reach_a_marketplace_tool() -> None:
+    """
+    The marketplace was removed outright. This asserts it cannot creep back in
+    through the assistant: even a caller holding every permission is offered no
+    market tool, because no such tool exists to offer.
+    """
+    every_permission = {
+        "triage.run",
+        "assistant.chat",
+        "market.read",  # deliberately granted; nothing should honour it
+        "market.price.publish.own_org",
+    }
+    for audience in Audience:
+        scope = scopes.resolve(
+            user_id=None if audience is Audience.VISITOR else "u1",
+            roles=None if audience is Audience.VISITOR else {_role_for(audience)},
+            permissions=every_permission,
+            all_tools=ALL_TOOLS,
+        )
+        offered = {tool["name"] for tool in scope.tools}
+        assert not any("market" in name or "price" in name for name in offered), (
+            f"{audience} was offered a marketplace tool: {offered}"
+        )
+
+
+def test_no_tier_guidance_offers_market_data() -> None:
+    for audience in Audience:
+        scope = scopes.resolve(
+            user_id=None if audience is Audience.VISITOR else "u1",
+            roles=None if audience is Audience.VISITOR else {_role_for(audience)},
+            permissions={"triage.run"},
+            all_tools=ALL_TOOLS,
+        )
+        guidance = scope.guidance().lower()
+        for offer in ("market notices", "show market", "market prices", "seller prices"):
+            assert offer not in guidance, f"{audience} guidance still offers: {offer}"
