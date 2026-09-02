@@ -32,10 +32,14 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 
 | Group | Routes | Audience |
 |---|---|---|
-| `(farmer)` | `/`, `/register` | Smallholder farmers. Public, no auth. |
+| `(farmer)` | `/`, `/check`, `/login`, `/signup` | Smallholder farmers. Public. |
 | `(depot)` | `/depot/*` | Depot officers verifying arrivals. Passphrase-gated. |
 
-**Farmer platform.** The wizard: acreage → depot → documents held → one result screen answering all three questions. Registration is optional and exists only so a depot officer can find the farmer at the gate — a farmer must never have to register to get an answer.
+**Landing page** (`/`) is the marketing surface: hero, the problem, the three questions, how it works, both sign-in doors, and the scope boundaries stated as a feature. Modelled on [agrivana.framer.ai](https://agrivana.framer.ai/). Sections animate in via `components/reveal.tsx`.
+
+**Farmer platform.** `/check` is the wizard: acreage → depot → documents held → one result screen answering all three questions.
+
+**`/check` must stay usable with no account. This is a product rule, not a default.** A farmer deciding whether to spend bus fare should not first have to hand over their national ID. Accounts exist so a depot officer can find someone at the gate; that is the only reason. If a change would require signing in to get a verdict, the change is wrong.
 
 **Depot officer platform.** `/depot` looks a farmer up by full national ID and shows what they were told before travelling. `/depot/farmers` lists the registry. `/depot/farmers/[id]` shows check history and records what the farmer actually collected. A service record is what happened; a check is what we predicted. They are separate tables on purpose, and they are allowed to differ.
 
@@ -56,8 +60,11 @@ Data flow: farmer inputs → `POST /api/triage` → engine evaluates against `sc
 |---|---|---|---|
 | `/api/triage` | POST | none | Run a check. Links to a farmer if `nationalId` matches one. |
 | `/api/farmers` | GET | officer | List the registry |
-| `/api/farmers` | POST | none | Farmer self-registration |
+| `/api/farmers` | POST | none | Registration without an account (no PIN) |
 | `/api/farmers/[id]/serve` | POST | officer | Record a collection |
+| `/api/farmer/sign-up` | POST | none | Create a farmer account, sets session |
+| `/api/farmer/sign-in` | POST | none | Phone + PIN, rate limited |
+| `/api/farmer/sign-out` | POST | — | Clear farmer session |
 | `/api/depot/sign-in` \| `sign-out` | POST | — | Officer session |
 
 `src/proxy.ts` (Next 16's replacement for `middleware.ts`) gates `/depot` page navigations with a negative-lookahead matcher, so a new officer page is protected by default rather than by remembering to add it.
@@ -72,9 +79,24 @@ The registry holds real personal data: names, phone numbers, counties, land size
 
 **The passphrase gate is a sprint measure, not production auth.** One shared secret means no per-officer identity and therefore no audit trail of who viewed whom — which is the first thing a real deployment of an ID registry needs. Before this goes near real farmers: per-officer accounts, an access log, a retention policy, and a Kenya Data Protection Act 2019 review.
 
-All three secrets fail closed. `ADMIN_PASSPHRASE`, `ADMIN_SESSION_SECRET`, and `NATIONAL_ID_HASH_SECRET` have no defaults and throw when unset, because a default would silently ship an unlocked console or a meaningless hash. See `frontend/.env.example`.
+All four secrets fail closed. `ADMIN_PASSPHRASE`, `ADMIN_SESSION_SECRET`, `NATIONAL_ID_HASH_SECRET` and `FARMER_SESSION_SECRET` have no defaults and throw when unset, because a default would silently ship an unlocked console or a meaningless hash. See `frontend/.env.example`.
 
 Consent is captured at registration (`consent_given_at`) and the API rejects a registration without it.
+
+### Farmer accounts
+
+Sign-in is **phone number + 6-digit PIN**, not email and password. That is the pattern farmers already use for mobile money, it types on a keypad, and it does not assume an email address.
+
+A 6-digit PIN is only a million combinations, so two things are load-bearing and must not be removed:
+
+- **PINs are scrypt-hashed** (`N=16384`), never stored or logged in the clear. Verified: the PIN does not appear in the database file, and no API response carries a `pin` field.
+- **Sign-in is rate limited** to 5 attempts per phone per 15 minutes. Without it the PIN falls to brute force in minutes.
+
+The rate limiter is **in-memory**, so it resets on deploy and does not work across instances. That is acceptable for a single-node sprint deployment and is the next thing to replace with a shared store before this scales out.
+
+Sign-in failures return one message for "no such phone" and "wrong PIN" alike, so the endpoint cannot be used to discover which numbers are registered. Sign-up conflicts are equally vague for the same reason.
+
+`FARMER_SESSION_SECRET` signs the farmer session cookie and, like the others, has no default.
 
 ### The data layer is the brain
 
@@ -123,18 +145,22 @@ Shared app components: `components/verdict-card.tsx` (the answer screen, used by
 
 ## Design tokens
 
-The visual language is government paperwork — a gazette notice, a depot gate sign, an ink stamp. Deliberately not a consumer fintech app. Muted, printed, official.
+Green system, adapted from the [agrivana.framer.ai](https://agrivana.framer.ai/) reference. Pale mint page, near-black green ink, deep forest for stamped elements. Still restrained and official rather than consumer-bright.
+
+The earlier manila/brass "ledger paper" palette is superseded for surfaces — but gazette brass survives for statutory numbers, for the reason given below.
 
 ### Color
 
 | Name | Hex | Role |
 |---|---|---|
-| Ledger paper | `#EDE6D3` | Background — sun-bleached manila, not stock cream |
-| Depot ink | `#1C2620` | Primary text — dark bottle-green-black, not pure black |
-| Proceed green | `#2E6B45` | Status: go (muted signal green, not candy-bright) |
-| Gate red | `#A3321F` | Status: stop (brick-toned ink-stamp red, not alarm red) |
+| Pale mint | `#ECFEF0` | Page background |
+| Near-black green | `#09190D` | Primary text |
+| Deep forest | `#052118` | Primary buttons — stamped, not candy |
+| Sage | `#526055` | Secondary text |
+| Lime | `#83F675` | Action accent, small doses only |
+| Proceed green | `#2E6B45` | Verdict: go. The only saturated green in the system. |
+| Gate red | `#A3321F` | Verdict: stop (brick-toned ink-stamp red, not alarm red) |
 | Gazette brass | `#A67C3D` | Statutory numbers only — prices, caps, allocations |
-| Ash gray | `#6E6656` | Secondary text, borders, dividers |
 
 These live in `frontend/src/app/globals.css`, mapped onto shadcn's variable names. Tailwind v4 takes full color values, not the bare HSL triplets that Tailwind v3 shadcn used — so the vars hold hex directly.
 
@@ -142,12 +168,30 @@ Product vocabulary is registered in the `@theme inline` block so `bg-proceed`, `
 
 | Var | Value | Use |
 |---|---|---|
-| `--proceed` | `#2E6B45` | Verdict: PROCEED |
-| `--gate` | `#A3321F` | Verdict: DO NOT TRAVEL |
+| `--proceed` / `--proceed-foreground` | `#2E6B45` / `#ECFEF0` | Verdict: PROCEED |
+| `--gate` / `--gate-foreground` | `#A3321F` / `#ECFEF0` | Verdict: DO NOT TRAVEL |
 | `--statutory` | `#A67C3D` | Statutory numbers, large text only |
 | `--statutory-strong` | `#7F5F2F` | Statutory numbers at body size (contrast-safe) |
+| `--action-accent` | `#83F675` | Lime accent. Progress fill and similar, never buttons. |
 
-Anything outside the six named colors is derived from ledger paper by lightening (`--card` `#F5F1E4`) or darkening (`--muted` / `--secondary` `#E0D7BF`), and is commented as derived in the CSS.
+Derived surfaces, all commented as derived in the CSS:
+
+| Var | Value | Note |
+|---|---|---|
+| `--card` / `--popover` | `#F7FDF8` | Near-white, lifted off the mint page |
+| `--muted` / `--secondary` / `--accent` | `#DDF5E2` | Mint darkened slightly |
+| `--border` / `--input` | `#C3E3CB` | Light mint hairline |
+| `--ring` | `#0A412F` | Deep forest. Not lime — lime on mint is too faint to see. |
+
+**Green surfaces collide with the green verdict. Three rules keep them apart, and they are the load-bearing part of this palette:**
+
+1. **Surfaces stay pale and desaturated.** `#ECFEF0` page, `#F7FDF8` cards. Saturated green is reserved for the verdict. If cards and buttons were also saturated green, PROCEED would stop meaning anything.
+2. **The verdict is a filled band, not colored text.** `verdict-card.tsx` renders a solid `bg-proceed` / `bg-gate` block across the top of the card. On a green UI, green text reads as decoration; a solid band reads as a stamp.
+3. **Buttons are deep forest `#052118`, not lime.** A lime button sitting next to a green verdict competes with it for the eye. Lime is an accent, not an action color.
+
+**Keep derived surfaces close to white, not to the page tint.** Stretching a handful of swatches across shadcn's ~20 surface tokens tints every card, input and hover, and the result reads as flat wash rather than paperwork. The page carries the tint; near-white carries the surfaces; the accent colors then mean something. For the same reason `--border` is a light tint, not the secondary-text color — at full strength that outlines every card in dark gray.
+
+Do not re-add opacity modifiers like `border-border/40` on top of these. They were needed when the border was a full-strength dark tone; against a light hairline they disappear.
 
 `--destructive` (`#6E2214`, deep oxblood) is deliberately *not* gate red. Destructive means "you are about to lose data"; gate red means "the depot will turn you away." Different meanings must not share a swatch, so a delete button and a depot verdict can never be confused.
 
@@ -155,23 +199,26 @@ Anything outside the six named colors is derived from ledger paper by lightening
 
 Token usage rules:
 
-- **Gazette brass is reserved.** It marks statutory numbers only — prices, bag caps, allocations. Using it for decoration destroys the signal that "this number is the official government figure, not our estimate."
-- Verdict colors appear on the verdict only. No green buttons, no red borders elsewhere.
+- **Gazette brass is reserved,** and it is kept from the old palette on purpose even though the green reference has no gold. It marks statutory numbers only — prices, bag caps, allocations — and it has to be distinguishable from the verdict green, which no green could be. Gold on green also reads as officialdom. Using it decoratively destroys the signal that "this number is the official government figure, not our estimate."
+- Verdict colors appear on the verdict only. No proceed-green buttons, no red borders elsewhere.
 - Color never carries meaning alone. Every verdict pairs its color with an icon and a text label.
 
-### Contrast — known issue
+### Contrast
 
-Measured against ledger paper `#EDE6D3`:
+Measured against pale mint `#ECFEF0`, except where noted:
 
 | Token | Ratio | Verdict |
 |---|---|---|
-| Depot ink | 12.5:1 | passes AAA |
-| Gate red | 5.6:1 | passes AA |
-| Proceed green | 5.1:1 | passes AA |
-| Ash gray | 4.6:1 | passes AA, barely — do not lighten |
-| Gazette brass | **3.0:1** | **fails AA for body text** |
+| Near-black green | 17.3:1 | passes AAA |
+| Gate red | 6.7:1 | passes AA |
+| Sage (secondary text) | 6.3:1 | passes AA |
+| Proceed green | 6.1:1 | passes AA |
+| `--proceed-foreground` on `--proceed` | 6.1:1 | passes AA — the filled band is legible |
+| `--gate-foreground` on `--gate` | 6.7:1 | passes AA |
+| Gazette brass, on `--card` | **3.6:1** | **fails AA for body text** |
+| `--statutory-strong`, on `--card` | 5.7:1 | passes AA |
 
-Gazette brass fails normal-text AA, and it's the token assigned to prices — the numbers a farmer most needs to read correctly. Use it only at large-text sizes (≥18.66px bold or ≥24px), which it does pass at 3:1. For a brass price in body-size text use `--statutory-strong` (`#7F5F2F`, ~4.7:1) instead of shipping the fail.
+Gazette brass still fails normal-text AA, and it is still the token assigned to prices — the numbers a farmer most needs to read correctly. Use it only at large-text sizes (≥18.66px bold or ≥24px), which it passes at 3:1. For a brass price at body size use `--statutory-strong`.
 
 ### Typography
 
@@ -186,7 +233,7 @@ Wired up as Oswald (`--font-heading`) and Source Sans 3 (`--font-sans`) via `nex
 
 ### Dark mode
 
-This token set is light-only by design — it's printed paper. There is no dark equivalent yet, and inverting it would break the whole metaphor. Do not add a `.dark` block by guessing values; if dark mode is wanted, the palette needs to be designed, not derived. Earlier guidance to "support light and dark" is superseded by this.
+This token set is light-only by design. Every ratio in the contrast table is measured against the pale mint page, and inverting the values invalidates all of them at once — the verdict tokens most of all, and those are the ones that have to stay legible. Do not add a `.dark` block by guessing values; if dark mode is wanted, the palette needs to be designed and re-measured, not derived. Earlier guidance to "support light and dark" is superseded by this.
 
 ## Stack
 
@@ -203,6 +250,8 @@ Decided:
 | Tests | Vitest (`npm test`) |
 | Backend | Next route handlers + server actions. No separate service. |
 | Store | SQLite via `node:sqlite` — a Node builtin, so no native module and no ORM |
+| Images | Local files in `frontend/public/img/`, credited in `CREDITS.md` |
+| Animation | `components/reveal.tsx` — IntersectionObserver + CSS. No animation library. |
 
 Still TBD:
 
@@ -213,7 +262,7 @@ Still TBD:
 ### Running it
 
 ```
-cp frontend/.env.example frontend/.env.local   # then fill in all three secrets
+cp frontend/.env.example frontend/.env.local   # then fill in all four secrets
 cd frontend && npm install && npm run dev
 NATIONAL_ID_HASH_SECRET=<same value> node database/seed.mjs   # optional demo data
 ```
@@ -229,6 +278,9 @@ The seed prints an ID to try in the gate console. `frontend/.env*` is git-ignore
 - Next 16 deprecated `middleware.ts` in favour of `proxy.ts` exporting `proxy`. Don't reintroduce the old convention.
 - `src/lib/triage/scheme_rules.json` is a **generated copy** of `database/scheme_rules.json`, written by `scripts/sync-rules.mjs` via `predev`/`prebuild`/`pretest` and git-ignored. Edit the one in `database/`. It exists because reading the policy with `readFileSync` at runtime makes Turbopack trace the whole project into the server bundle; a static import avoids that and bakes the policy into the build.
 - `node:sqlite` types need `@types/node` ≥ 24. On ^20 the build fails with `Cannot find module 'node:sqlite'`.
+- Adding a column to `database/schema.sql` does **not** reach an existing database — `CREATE TABLE IF NOT EXISTS` is a no-op on a table that already exists, and SQLite has no `ADD COLUMN IF NOT EXISTS`. Add it to `migrate()` in `src/lib/db.ts`, which checks `pragma_table_info` first. This bit once already, with `pin_hash`.
+- Images live in `public/img/` and are committed. Keep any replacement under ~250KB and credited in `CREDITS.md` — two of the four are CC BY / CC BY-SA, and the landing footer carries the attribution they require. Removing that footer without removing the photos is a licence violation.
+- Animation is one small component using IntersectionObserver plus a CSS transition. Reduced motion is handled with Tailwind's `motion-reduce` variant rather than a JS branch, because `react-hooks/set-state-in-effect` rejects setting state directly in an effect.
 - Update this section as decisions land.
 
 ## Conventions
@@ -238,5 +290,6 @@ The seed prints an ID to try in the gate console. `frontend/.env*` is git-ignore
 - The engine throws rather than guessing when the rules file and the input disagree. A silent fallback would mean telling someone to travel on a rule we could not find.
 - Allocation floors partial bags. Rounding up would quote a total the depot refuses to honour.
 - Show the official cost even on a `DO NOT TRAVEL`. A farmer who doesn't know the gazetted price can't tell they're being overcharged on the next trip.
+- Motion is decoration, never information. Anything the reader must know has to survive `prefers-reduced-motion` and a failed image load.
 - Do not commit anything under `logs/`.
 - Do not commit secrets. Use `.env` files, git-ignored, with a committed `.env.example`.

@@ -21,9 +21,29 @@ export function getDb(): DatabaseSync {
   handle.exec("PRAGMA journal_mode = WAL");
   handle.exec("PRAGMA foreign_keys = ON");
   handle.exec(readFileSync(path.join(dir, "schema.sql"), "utf8"));
+  migrate(handle);
 
   db = handle;
   return db;
+}
+
+/**
+ * Adds columns that schema.sql introduced after a database was first created.
+ *
+ * `CREATE TABLE IF NOT EXISTS` is a no-op on an existing table, so a column
+ * added to schema.sql never reaches a database that predates it — the app
+ * then fails at runtime on a column that "obviously" exists. SQLite has no
+ * `ADD COLUMN IF NOT EXISTS`, so check pragma output first.
+ */
+function migrate(handle: DatabaseSync): void {
+  const columns = handle
+    .prepare("SELECT name FROM pragma_table_info('farmers')")
+    .all() as { name: string }[];
+  const present = new Set(columns.map((c) => c.name));
+
+  if (!present.has("pin_hash")) {
+    handle.exec("ALTER TABLE farmers ADD COLUMN pin_hash TEXT");
+  }
 }
 
 /**
@@ -81,6 +101,8 @@ export function registerFarmer(input: {
   phone: string;
   county: string;
   acres: number;
+  /** scrypt hash from hashPin(). Omitted for a registration without an account. */
+  pinHash?: string;
 }): Farmer {
   const now = new Date().toISOString();
   const row = {
@@ -91,6 +113,7 @@ export function registerFarmer(input: {
     phone: input.phone,
     county: input.county,
     acres: input.acres,
+    pin_hash: input.pinHash ?? null,
     consent_given_at: now,
     registered_at: now,
   };
@@ -98,8 +121,9 @@ export function registerFarmer(input: {
   getDb()
     .prepare(
       `INSERT INTO farmers (id, full_name, national_id_hash, national_id_last4,
-                            phone, county, acres, consent_given_at, registered_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+                            phone, county, acres, pin_hash, consent_given_at,
+                            registered_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       row.id,
@@ -109,11 +133,31 @@ export function registerFarmer(input: {
       row.phone,
       row.county,
       row.acres,
+      row.pin_hash,
       row.consent_given_at,
       row.registered_at
     );
 
   return toFarmer(row as unknown as FarmerRow);
+}
+
+/**
+ * Looks a farmer up by phone for sign-in, returning the PIN hash alongside.
+ * Separate from the other finders because nothing else should ever pull the
+ * hash out of the database.
+ */
+export function findFarmerCredentialsByPhone(
+  phone: string
+): { farmer: Farmer; pinHash: string | null } | null {
+  const row = getDb()
+    .prepare(
+      `SELECT id, full_name, national_id_last4, phone, county, acres,
+              registered_at, pin_hash
+         FROM farmers WHERE phone = ?`
+    )
+    .get(phone) as (FarmerRow & { pin_hash: string | null }) | undefined;
+
+  return row ? { farmer: toFarmer(row), pinHash: row.pin_hash } : null;
 }
 
 export function findFarmerByNationalId(nationalId: string): Farmer | null {

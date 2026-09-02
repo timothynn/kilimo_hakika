@@ -14,9 +14,13 @@ CREATE TABLE IF NOT EXISTS farmers (
   full_name         TEXT NOT NULL,
   national_id_hash  TEXT NOT NULL UNIQUE,
   national_id_last4 TEXT NOT NULL,
-  phone             TEXT NOT NULL,
+  phone             TEXT NOT NULL UNIQUE,
   county            TEXT NOT NULL,
   acres             REAL NOT NULL,
+  -- scrypt of the farmer's PIN, formatted "salt:derivedKey" (both hex).
+  -- Nullable: rows seeded before accounts existed have no PIN and simply
+  -- cannot sign in until they set one.
+  pin_hash          TEXT,
   consent_given_at  TEXT NOT NULL,
   registered_at     TEXT NOT NULL
 );
