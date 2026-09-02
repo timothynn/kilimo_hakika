@@ -26,18 +26,55 @@ These are non-negotiable. Do not add them, do not suggest them, do not scaffold 
 
 Scope creep is the primary risk on this project. When in doubt, cut.
 
-## Architecture
+## Two platforms
 
-Three tiers, one per top-level directory:
+One Next.js app serves both audiences, as route groups sharing the token set and components.
+
+| Group | Routes | Audience |
+|---|---|---|
+| `(farmer)` | `/`, `/register` | Smallholder farmers. Public, no auth. |
+| `(depot)` | `/depot/*` | Depot officers verifying arrivals. Passphrase-gated. |
+
+**Farmer platform.** The wizard: acreage → depot → documents held → one result screen answering all three questions. Registration is optional and exists only so a depot officer can find the farmer at the gate — a farmer must never have to register to get an answer.
+
+**Depot officer platform.** `/depot` looks a farmer up by full national ID and shows what they were told before travelling. `/depot/farmers` lists the registry. `/depot/farmers/[id]` shows check history and records what the farmer actually collected. A service record is what happened; a check is what we predicted. They are separate tables on purpose, and they are allowed to differ.
+
+## Architecture
 
 | Path | Purpose |
 |------|---------|
-| `frontend/` | React web client — wizard-style kiosk UI |
-| `backend/` | Triage API wrapping the rules engine |
-| `database/` | `scheme_rules.json` — the policy data layer |
+| `frontend/` | The Next.js app — both platforms, plus the API routes and the rules engine |
+| `database/` | `scheme_rules.json` (policy), `schema.sql`, `seed.mjs`, and the git-ignored SQLite file |
+| `backend/` | Empty. Reserved for a future non-Next service (SMS/USSD gateway). Next route handlers are the backend today. |
 | `logs/` | Git-ignored |
 
-Data flow: farmer inputs → `POST /api/triage` → rules engine evaluates against `scheme_rules.json` → verdict + gap list + costing → rendered result screen.
+Data flow: farmer inputs → `POST /api/triage` → engine evaluates against `scheme_rules.json` → verdict + gap list + costing → result screen, and a row in `check_events` so the gate console can see it later.
+
+### Routes
+
+| Route | Method | Auth | Purpose |
+|---|---|---|---|
+| `/api/triage` | POST | none | Run a check. Links to a farmer if `nationalId` matches one. |
+| `/api/farmers` | GET | officer | List the registry |
+| `/api/farmers` | POST | none | Farmer self-registration |
+| `/api/farmers/[id]/serve` | POST | officer | Record a collection |
+| `/api/depot/sign-in` \| `sign-out` | POST | — | Officer session |
+
+`src/proxy.ts` (Next 16's replacement for `middleware.ts`) gates `/depot` page navigations with a negative-lookahead matcher, so a new officer page is protected by default rather than by remembering to add it.
+
+**API routes and server actions re-check the session themselves.** The proxy covers page navigations only — it does not run for `/api/*`, and a server action is its own entry point. Never add an officer-only route that relies on the proxy alone.
+
+## Data protection
+
+The registry holds real personal data: names, phone numbers, counties, land sizes.
+
+**National IDs are never stored in the clear.** We keep a SHA-256 hash peppered with `NATIONAL_ID_HASH_SECRET`, plus the last four digits for on-screen confirmation. Exact-match lookup still works — the officer types the full number, we hash and compare — so no flow is lost, but a leaked database does not hand over ID numbers. The pepper matters: a bare hash of a 7–9 digit number is brute-forceable in seconds. Changing the pepper makes every existing farmer unfindable.
+
+**The passphrase gate is a sprint measure, not production auth.** One shared secret means no per-officer identity and therefore no audit trail of who viewed whom — which is the first thing a real deployment of an ID registry needs. Before this goes near real farmers: per-officer accounts, an access log, a retention policy, and a Kenya Data Protection Act 2019 review.
+
+All three secrets fail closed. `ADMIN_PASSPHRASE`, `ADMIN_SESSION_SECRET`, and `NATIONAL_ID_HASH_SECRET` have no defaults and throw when unset, because a default would silently ship an unlocked console or a meaningless hash. See `frontend/.env.example`.
+
+Consent is captured at registration (`consent_given_at`) and the API rejects a registration without it.
 
 ### The data layer is the brain
 
@@ -80,7 +117,9 @@ Rules:
 - Forms: `react-hook-form` + `zod` via shadcn's `Form` components. The zod schema for farmer inputs is the frontend's input contract; the backend still validates independently — never trust client validation for a verdict.
 - Accessibility is not optional — shadcn builds on Radix primitives; keep the primitive's semantics and keyboard behavior intact when customizing.
 
-Likely component set: `form`, `input`, `select`, `checkbox`, `card`, `alert`, `badge`, `button`, `separator`, `progress` (wizard steps), `table` (cost breakdown).
+Installed: `form`, `input`, `select`, `checkbox`, `radio-group`, `label`, `card`, `alert`, `badge`, `button`, `separator`, `progress`, `table`.
+
+Shared app components: `components/verdict-card.tsx` (the answer screen, used by both platforms), `components/triage-wizard.tsx`, `components/register-form.tsx`.
 
 ## Design tokens
 
@@ -161,13 +200,25 @@ Decided:
 | Forms | `react-hook-form` + `zod` + `@hookform/resolvers` |
 | Package manager | npm |
 | Lint | ESLint via `eslint-config-next` (`npm run lint`) |
+| Tests | Vitest (`npm test`) |
+| Backend | Next route handlers + server actions. No separate service. |
+| Store | SQLite via `node:sqlite` — a Node builtin, so no native module and no ORM |
 
 Still TBD:
 
-- Backend language / framework — Python + FastAPI is the natural fit if the rules engine stays Python, but not decided
-- Test runner
 - Formatter (Prettier not installed)
 - Deployment target
+- Real officer authentication (see "Data protection")
+
+### Running it
+
+```
+cp frontend/.env.example frontend/.env.local   # then fill in all three secrets
+cd frontend && npm install && npm run dev
+NATIONAL_ID_HASH_SECRET=<same value> node database/seed.mjs   # optional demo data
+```
+
+The seed prints an ID to try in the gate console. `frontend/.env*` is git-ignored; `database/*.db` too.
 
 ### Frontend gotchas
 
@@ -175,11 +226,17 @@ Still TBD:
 - Components import from the unified `radix-ui` package (`import { Slot } from "radix-ui"`), not per-primitive `@radix-ui/react-*` packages. Match that style when hand-writing a component.
 - `src/components/ui/form.tsx` was hand-written: the shadcn CLI silently no-ops on `add form` under this preset. If you regenerate components, don't expect the CLI to produce it.
 - `npx tsc --noEmit` alone reports `Cannot find name 'LayoutProps'`. That global comes from Next's generated types, so typecheck via `npm run build` instead.
+- Next 16 deprecated `middleware.ts` in favour of `proxy.ts` exporting `proxy`. Don't reintroduce the old convention.
+- `src/lib/triage/scheme_rules.json` is a **generated copy** of `database/scheme_rules.json`, written by `scripts/sync-rules.mjs` via `predev`/`prebuild`/`pretest` and git-ignored. Edit the one in `database/`. It exists because reading the policy with `readFileSync` at runtime makes Turbopack trace the whole project into the server bundle; a static import avoids that and bakes the policy into the build.
+- `node:sqlite` types need `@types/node` ≥ 24. On ^20 the build fails with `Cannot find module 'node:sqlite'`.
 - Update this section as decisions land.
 
 ## Conventions
 
 - Keep frontend, backend, and database concerns in their own top-level directory.
-- The rules engine needs unit tests before it needs polish. A wrong verdict costs a farmer real money.
+- The rules engine needs unit tests before it needs polish. A wrong verdict costs a farmer real money. `engine.ts` is pure — no I/O, no clock, no randomness — so it stays trivially testable; keep it that way.
+- The engine throws rather than guessing when the rules file and the input disagree. A silent fallback would mean telling someone to travel on a rule we could not find.
+- Allocation floors partial bags. Rounding up would quote a total the depot refuses to honour.
+- Show the official cost even on a `DO NOT TRAVEL`. A farmer who doesn't know the gazetted price can't tell they're being overcharged on the next trip.
 - Do not commit anything under `logs/`.
 - Do not commit secrets. Use `.env` files, git-ignored, with a committed `.env.example`.

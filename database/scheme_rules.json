@@ -1,0 +1,88 @@
+{
+  "version": "2024-02",
+  "note": "Policy data. Deterministic input to the triage engine. Every rule carries its citation. Adding a depot or changing a cap is an edit here, never a code change.",
+  "documents": {
+    "national_id": {
+      "label": "Original National ID",
+      "detail": "The original card. Photocopies are not accepted at the gate.",
+      "source": "MOALD Circular 2024/02, s.4(1)"
+    },
+    "evoucher_code": {
+      "label": "E-Voucher SMS code",
+      "detail": "The registration SMS from 40022. Bring the phone the SMS was sent to.",
+      "source": "MOALD Circular 2024/02, s.6(2)"
+    },
+    "land_title": {
+      "label": "Title deed",
+      "detail": "For land you own. If you lease, bring the lease agreement instead.",
+      "source": "MOALD Circular 2024/02, s.5(1)"
+    },
+    "lease_agreement": {
+      "label": "Land lease agreement",
+      "detail": "For leased land. Must carry the area chief's stamp.",
+      "source": "MOALD Circular 2024/02, s.5(2)"
+    },
+    "chief_letter": {
+      "label": "Chief's letter, stamped",
+      "detail": "Confirms you farm in the location. Must bear the chief's official stamp, not only a signature.",
+      "source": "MOALD Circular 2024/02, s.5(3)"
+    },
+    "coop_membership": {
+      "label": "Cooperative membership card",
+      "detail": "Required where the depot allocates through a registered cooperative.",
+      "source": "MOALD Circular 2024/02, s.8(1)"
+    }
+  },
+  "documentGroups": {
+    "proof_of_land": {
+      "label": "Proof of land",
+      "detail": "Any one of these satisfies the land requirement.",
+      "anyOf": ["land_title", "lease_agreement"],
+      "source": "MOALD Circular 2024/02, s.5"
+    }
+  },
+  "depots": [
+    {
+      "id": "ncpb-eldoret",
+      "name": "NCPB Eldoret",
+      "county": "Uasin Gishu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": ["national_id", "evoucher_code", "proof_of_land"],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "source": "MOALD Circular 2024/02, Schedule 1"
+    },
+    {
+      "id": "ncpb-kitale",
+      "name": "NCPB Kitale",
+      "county": "Trans Nzoia",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": ["national_id", "evoucher_code", "proof_of_land", "chief_letter"],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 12,
+        "pricePerBagKes": 2500
+      },
+      "source": "MOALD Circular 2024/02, Schedule 1"
+    },
+    {
+      "id": "ncpb-nakuru",
+      "name": "NCPB Nakuru",
+      "county": "Nakuru",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": ["national_id", "evoucher_code", "coop_membership"],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 8,
+        "pricePerBagKes": 2500
+      },
+      "source": "MOALD Circular 2024/02, Schedule 2"
+    }
+  ]
+}
