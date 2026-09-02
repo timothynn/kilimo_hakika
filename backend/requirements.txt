@@ -1,0 +1,13 @@
+# Kilimo Hakika (DepotReady) - backend runtime dependencies
+#
+# FastAPI is used because it generates the interactive OpenAPI/Swagger UI at
+# /docs automatically, which is how the frontend developer explores and tests
+# these endpoints without needing to read the source.
+fastapi==0.118.0
+uvicorn[standard]==0.37.0
+
+# Left as a range rather than an exact pin on purpose: pydantic-core ships
+# prebuilt wheels per Python minor version, and pinning an older patch forces a
+# from-source Rust build on Python 3.14. 2.12 is the first release with cp314
+# wheels, so this range installs cleanly on 3.10 through 3.14.
+pydantic>=2.12,<3
