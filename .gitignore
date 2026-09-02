@@ -4,3 +4,15 @@ logs/
 database/*.db
 database/*.db-wal
 database/*.db-shm
+
+# Secrets. Every .env is ignored; the committed .env.example is the contract.
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/

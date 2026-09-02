@@ -49,7 +49,7 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 |------|---------|
 | `frontend/` | The Next.js app — both platforms, plus the API routes and the rules engine |
 | `database/` | `scheme_rules.json` (policy), `schema.sql`, `seed.mjs`, and the git-ignored SQLite file |
-| `backend/` | Empty. Reserved for a future non-Next service (SMS/USSD gateway). Next route handlers are the backend today. |
+| `backend/` | Python triage service (FastAPI): rules engine, identity, market data, assistant. Built in parallel with the Next app, so there are currently **two** rules engines — which one is authoritative is an open decision. Read `docs/design/integration.md` before touching either. |
 | `logs/` | Git-ignored |
 
 Data flow: farmer inputs → `POST /api/triage` → engine evaluates against `scheme_rules.json` → verdict + gap list + costing → result screen, and a row in `check_events` so the gate console can see it later.
