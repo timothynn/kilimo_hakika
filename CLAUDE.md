@@ -22,7 +22,7 @@ These are non-negotiable. Do not add them, do not suggest them, do not scaffold 
 
 - **No agronomic advice.** Zero crop, planting, fertilizer-choice, or yield recommendations.
 - **No payments.** Zero M-Pesa or any payment API. Zero transaction handling. The system *displays* the statutory truth; it never moves money.
-- **No marketplace.** Zero vendor listings, zero e-commerce, zero price comparison between sellers.
+- **No marketplace.** Zero vendor listings, zero e-commerce, zero price comparison between sellers. The `market` module that once existed (route, Postgres schema, permissions and assistant tool) was removed outright, not disabled.
 
 Scope creep is the primary risk on this project. When in doubt, cut.
 
@@ -72,18 +72,24 @@ Entrance animation is keyframes in `globals.css` (`kh-fade-up`, `kh-fade-in`, `k
 |------|---------|
 | `frontend/` | The Next.js app — both platforms, plus the API routes and the rules engine |
 | `database/` | `scheme_rules.json` (policy), `schema.sql`, `seed.mjs`, and the git-ignored SQLite file |
-| `backend/` | **Two** Python services, built in parallel: `app/` + `main.py` (FastAPI triage, ward-level catchments) and `src/kilimo_hakika/` (triage plus the policy database, identity model, market data and assistant). |
+| `backend/` | **Two** Python services: `app/` + `main.py` (the FastAPI verdict engine — the single source of truth) and `src/kilimo_hakika/` (policy pack, identity model and assistant). |
 | `logs/` | Git-ignored |
 
-**There are three rules engines in this repo, and they disagree.** The TypeScript one in `frontend/src/lib/triage/`, and the two Python ones under `backend/`. For 2.5 acres at NCPB Nakuru the TS engine says 5 bags / 12,500 KES and the `kilimo_hakika` engine says 10 bags / 23,600 KES. A verdict must have one source, so this needs resolving before anything ships. **Read `docs/design/integration.md` before touching any of them** — it has the comparison, the citation evidence, and a proposed migration order.
+**Verdicts have exactly one source: the FastAPI engine at `backend/app/` + `backend/main.py`.** It owns the statutory math (2 planting + 2 top-dressing bags per acre, ceiling 100, flat KES 2,500 per 50kg bag), the ward-level geography (47 counties / 290 constituencies / 1450 wards), the 56-depot catchment network, the document rules, and the citations to MOALD Circular 2026/02 and NCPB Operating Circular 4B.
 
-Data flow (as shipped today): farmer inputs → `POST /api/triage` → the TypeScript engine evaluates against `scheme_rules.json` → verdict + gap list + costing → result screen, and a row in `check_events` so the gate console can see it later.
+The Next app is the entire user interface and computes no verdict. `frontend/src/lib/triage/engine.ts` is a **reference implementation only** — tested, but wired to no route. Do not reconnect it: two engines meant two verdicts for the same farmer, and for 2.5 acres it used to answer 5 bags / 12,500 KES where the statutory answer is 10 bags / 25,000 KES. See `docs/design/integration.md`.
+
+Data flow: farmer inputs → `POST /api/triage` (Next) → validates, forwards to `POST /api/triage` on the FastAPI engine → verdict + gap list + costing + cash rule → result screen, and a row in `check_events` so the gate console can see it later. If the engine is unreachable the route returns 503 and the UI says so; it never falls back to a local guess.
+
+**Ports.** The verdict engine defaults to `127.0.0.1:8000` (`KILIMO_TRIAGE_API_URL`). The second Python service, `backend/src/kilimo_hakika/` (policy pack, identity, assistant), also defaults to 8000 — run it on another port or the two collide.
 
 ### Routes
 
 | Route | Method | Auth | Purpose |
 |---|---|---|---|
-| `/api/triage` | POST | none | Run a check. Links to a farmer if `nationalId` matches one. |
+| `/api/triage` | POST | none | Run a check. Delegates to the FastAPI engine; never decides locally. |
+| `/api/geo/constituencies` \| `/api/geo/wards` | GET | none | Cascading location pickers, proxied from the engine |
+| `/api/depots` | GET | none | Gazetted NCPB depots for a county's catchment, proxied |
 | `/api/farmers` | GET | officer | List the registry |
 | `/api/farmers` | POST | none | Registration without an account (no PIN) |
 | `/api/farmers/[id]/serve` | POST | officer | Record a collection |

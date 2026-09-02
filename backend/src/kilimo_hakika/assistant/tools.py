@@ -71,23 +71,6 @@ DEFINITIONS: list[dict[str, Any]] = [
             "required": ["document_code"],
         },
     },
-    {
-        "name": "get_market_signals",
-        "description": (
-            "Published demand and supply notices from verified organisations. These are "
-            "commercial, not statutory: always name the organisation that published them."
-        ),
-        "strict": True,
-        "input_schema": {
-            "type": "object",
-            "additionalProperties": False,
-            "properties": {
-                "product_code": {"type": ["string", "null"]},
-                "county_code": {"type": ["string", "null"]},
-            },
-            "required": ["product_code", "county_code"],
-        },
-    },
 ]
 
 
@@ -113,8 +96,6 @@ def execute(
         }, None
     if name == "get_document_guidance":
         return _document(str(args.get("document_code", "")), locale), None
-    if name == "get_market_signals":
-        return _signals(args, claims), None
     return {"error": f"unknown tool {name}"}, None
 
 
@@ -205,48 +186,4 @@ def _document(code: str, locale: str) -> dict[str, Any]:
         "label": _text(doc.label, locale),
         "how_to_obtain": _text(doc.how_to_obtain, locale),
         "is_physical": doc.is_physical,
-    }
-
-
-def _signals(args: dict[str, Any], claims: dict[str, Any]) -> dict[str, Any]:
-    try:
-        with db.user_connection(claims) as conn, conn.cursor() as cur:
-            cur.execute(
-                """
-                select s.direction, s.product_code, s.county_code, s.period_start, s.period_end,
-                       s.headline_en, o.name as org_name, o.kind as org_kind
-                  from market.signal s
-                  join identity.organisation o on o.id = s.organisation_id
-                 where s.status = 'PUBLISHED'
-                   and (%s::text is null or s.product_code = %s)
-                   and (%s::text is null or s.county_code = %s)
-                 order by s.period_start
-                 limit 10
-                """,
-                (
-                    args.get("product_code"),
-                    args.get("product_code"),
-                    args.get("county_code"),
-                    args.get("county_code"),
-                ),
-            )
-            rows = cur.fetchall()
-    except Exception as exc:
-        log.warning("signal lookup failed: %s", exc)
-        return {"signals": []}
-
-    return {
-        "signals": [
-            {
-                "direction": r["direction"],
-                "product_code": r["product_code"],
-                "county_code": r["county_code"],
-                "period": f"{r['period_start']} to {r['period_end']}",
-                "headline": r["headline_en"],
-                "published_by": r["org_name"],
-                "publisher_kind": r["org_kind"],
-                "authority": "COMMERCIAL_NOT_STATUTORY",
-            }
-            for r in rows
-        ]
     }

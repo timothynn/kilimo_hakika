@@ -277,7 +277,7 @@ def me(caller: CallerDep) -> dict[str, Any]:
         "shared_device": bool(caller.claims.get("shared_device")),
         "consents": {
             purpose: consents.get(purpose, False)
-            for purpose in ("ACCOUNT", "ASSISTANT_AI", "ANALYTICS", "MARKET_NOTIFICATIONS")
+            for purpose in ("ACCOUNT", "ASSISTANT_AI", "ANALYTICS")
         },
         "farmer_profile": {
             "registration_county_code": farmer.get("registration_county_code") if farmer else None,

@@ -43,7 +43,7 @@ comment on table ai.prompt_version is
 create table ai.knowledge_chunk (
   id            uuid primary key default gen_random_uuid(),
   source_kind   text not null
-                  check (source_kind in ('CITATION','DOCUMENT_HOWTO','RULE_MESSAGE','MARKET_SIGNAL','PLATFORM_FAQ')),
+                  check (source_kind in ('CITATION','DOCUMENT_HOWTO','RULE_MESSAGE','PLATFORM_FAQ')),
   source_ref    text not null,                -- citation id, document code, rule code, signal id
   locale        text not null check (locale in ('en','sw')),
   title         text not null,
@@ -72,7 +72,7 @@ create index knowledge_chunk_fts_sw on ai.knowledge_chunk
   where locale = 'sw';
 
 comment on table ai.knowledge_chunk is
-  'Derived, not authored: rebuilt from kh.citation, kh.document, kh.rule and published market.signal rows whenever a rule pack is published. A chunk whose source is a statutory rule keeps its citation_id so the assistant can always answer "who says so".';
+  'Derived, not authored: rebuilt from kh.citation, kh.document and kh.rule whenever a rule pack is published. A chunk whose source is a statutory rule keeps its citation_id so the assistant can always answer "who says so".';
 
 -- ---------------------------------------------------------------------------
 -- Conversations
@@ -135,7 +135,7 @@ create table ai.recommendation (
   id                 uuid primary key default gen_random_uuid(),
   user_id            uuid not null references identity.app_user(id) on delete cascade,
   kind               text not null
-                       check (kind in ('GAP_PLAN','TIMING','MARKET_CONTEXT','LEARNING')),
+                       check (kind in ('GAP_PLAN','TIMING','LEARNING')),
   subject            jsonb not null,           -- the inputs it was based on
   body_en            text not null,
   body_sw            text,
@@ -154,7 +154,7 @@ comment on table ai.recommendation is
   'Advice, recorded as advice. Rendered outside the verdict panel and labelled as generated. `grounding_refs` lists the corpus rows it drew on; an empty array on a shipped recommendation is a bug, not a shrug.';
 
 comment on column ai.recommendation.kind is
-  'GAP_PLAN: how to close the missing-document list. TIMING: when to travel given depot hours and season dates. MARKET_CONTEXT: what published signals say. LEARNING: explaining a rule or a document. None of these may restate or alter a verdict.';
+  'GAP_PLAN: how to close the missing-document list. TIMING: when to travel given depot hours and season dates. LEARNING: explaining a rule or a document. None of these may restate or alter a verdict.';
 
 -- ---------------------------------------------------------------------------
 -- RLS

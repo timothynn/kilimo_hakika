@@ -220,7 +220,7 @@ def test_scheme_rules_match_the_circular():
         == "MOALD Circular 2026/02 & NCPB Operating Circular 4B"
     )
     assert repo.SCHEME["circular"] == "MOALD Circular 2026/02"
-    assert repo.SCHEME["operating_procedure"] == "NCPB Circular 4B"
+    assert repo.SCHEME["operating_procedure"] == "NCPB Operating Circular 4B"
 
     assert repo.PRICING["price_per_bag_kes"] == 2500
     assert repo.PRICING["bag_weight_kg"] == 50

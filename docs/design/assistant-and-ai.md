@@ -189,9 +189,17 @@ layer over a product that must function when it is absent.
    author/reviewer/publisher separation. Prompts that explain policy to farmers
    arguably deserve the same, and currently only `audit.read` holders can even
    see them.
-3. **Does agronomic advice come next?** The rewritten scope permits it. It is
-   also the highest-liability output on the table — a fertilizer-choice
-   recommendation that costs a farmer a harvest is a different order of mistake
-   than a wrong opening time. If it is wanted, it should be its own
-   `ai.recommendation` kind with its own eval set and a named expert reviewing
-   the prompt, not an incidental capability of a general chatbot.
+3. **Does agronomic advice come next?** **No — closed, and closed permanently.**
+   Agronomic advice is a hard track constraint, not a roadmap item. The scope
+   layer grants no tool that could produce it, and system prompt rule 5 requires
+   an outright refusal with a redirect to the farmer's Ward Agricultural
+   Officer — no hypotheticals, no partial answer before refusing. The
+   deterministic engine enforces the same boundary independently: a `crop_type`
+   phrased as an agronomy question is refused with HTTP 422 by
+   `backend/app/compliance.py`. Any future proposal here reopens a compliance
+   question, not a product question.
+
+4. **Marketplace.** Also closed. The `market` module was removed outright in the
+   same pass — route, schema, permissions, roles, consent purpose, assistant
+   tool and UI copy. `tests/test_assistant_privacy.py` asserts that no tier can
+   be offered a market tool even when holding every permission.

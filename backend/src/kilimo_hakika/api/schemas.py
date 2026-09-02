@@ -58,7 +58,7 @@ class ProfileRequest(BaseModel):
 
 
 class ConsentRequest(BaseModel):
-    purpose: Literal["ACCOUNT", "ASSISTANT_AI", "ANALYTICS", "MARKET_NOTIFICATIONS"]
+    purpose: Literal["ACCOUNT", "ASSISTANT_AI", "ANALYTICS"]
     granted: bool
     policy_version: str = Field(default="2026-09-01", max_length=32)
 

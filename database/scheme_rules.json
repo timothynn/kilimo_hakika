@@ -1,44 +1,52 @@
 {
-  "version": "2024-02",
-  "note": "Policy data. Deterministic input to the triage engine. Every rule carries its citation. Adding a depot or changing a cap is an edit here, never a code change.",
+  "version": "2026-02",
+  "note": "Policy data. Deterministic input to the triage engine. Every rule carries its citation. Adding a depot or changing a cap is an edit here, never a code change. NOTE: since engine consolidation this file no longer produces farmer-facing verdicts - the FastAPI service in backend/ does. It is kept as the tested reference implementation of the same statutory math. See docs/design/integration.md.",
   "documents": {
     "national_id": {
       "label": "Original National ID",
-      "detail": "The original card. Photocopies are not accepted at the gate.",
-      "source": "MOALD Circular 2024/02, s.4(1)"
+      "detail": "The original card. A photocopy is refused at the counter.",
+      "source": "MOALD Circular 2026/02, s.4(1)"
     },
     "evoucher_code": {
       "label": "E-Voucher SMS code",
       "detail": "The registration SMS from 40022. Bring the phone the SMS was sent to.",
-      "source": "MOALD Circular 2024/02, s.6(2)"
+      "source": "MOALD Circular 2026/02, s.6(2)"
     },
     "land_title": {
       "label": "Title deed",
       "detail": "For land you own. If you lease, bring the lease agreement instead.",
-      "source": "MOALD Circular 2024/02, s.5(1)"
+      "source": "MOALD Circular 2026/02, s.5(1)"
     },
     "lease_agreement": {
-      "label": "Land lease agreement",
-      "detail": "For leased land. Must carry the area chief's stamp.",
-      "source": "MOALD Circular 2024/02, s.5(2)"
+      "label": "Chief's stamped lease agreement",
+      "detail": "For leased land. Must bear the Area Chief's official stamp - an unstamped lease is refused.",
+      "source": "MOALD Circular 2026/02, s.5(2)"
     },
     "chief_letter": {
       "label": "Chief's letter, stamped",
       "detail": "Confirms you farm in the location. Must bear the chief's official stamp, not only a signature.",
-      "source": "MOALD Circular 2024/02, s.5(3)"
+      "source": "MOALD Circular 2026/02, s.5(3)"
     },
     "coop_membership": {
       "label": "Cooperative membership card",
       "detail": "Required where the depot allocates through a registered cooperative.",
-      "source": "MOALD Circular 2024/02, s.8(1)"
+      "source": "MOALD Circular 2026/02, s.8(1)"
+    },
+    "wao_form": {
+      "label": "Duly signed Ward Agricultural Officer (WAO) form",
+      "detail": "The scheme form countersigned by the Ward Agricultural Officer for your ward. A blank or unsigned form is refused.",
+      "source": "MOALD Circular 2026/02, Part III (c)"
     }
   },
   "documentGroups": {
     "proof_of_land": {
       "label": "Proof of land",
       "detail": "Any one of these satisfies the land requirement.",
-      "anyOf": ["land_title", "lease_agreement"],
-      "source": "MOALD Circular 2024/02, s.5"
+      "anyOf": [
+        "land_title",
+        "lease_agreement"
+      ],
+      "source": "MOALD Circular 2026/02, s.5"
     }
   },
   "depots": [
@@ -46,43 +54,73 @@
       "id": "ncpb-eldoret",
       "name": "NCPB Eldoret",
       "county": "Uasin Gishu",
-      "program": "Subsidised Fertiliser Programme 2024",
-      "requires": ["national_id", "evoucher_code", "proof_of_land"],
+      "program": "National Fertilizer Subsidy Programme 2026",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "wao_form",
+        "proof_of_land"
+      ],
       "allocation": {
-        "unit": "50kg bag of DAP",
-        "bagsPerAcre": 2,
-        "maxBags": 10,
+        "unit": "50kg bag",
+        "plantingBagsPerAcre": 2,
+        "topDressingBagsPerAcre": 2,
+        "bagsPerAcre": 4,
+        "maxBags": 100,
         "pricePerBagKes": 2500
       },
-      "source": "MOALD Circular 2024/02, Schedule 1"
+      "source": "MOALD Circular 2026/02, Schedule 1"
     },
     {
       "id": "ncpb-kitale",
       "name": "NCPB Kitale",
       "county": "Trans Nzoia",
-      "program": "Subsidised Fertiliser Programme 2024",
-      "requires": ["national_id", "evoucher_code", "proof_of_land", "chief_letter"],
+      "program": "National Fertilizer Subsidy Programme 2026",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "wao_form",
+        "proof_of_land"
+      ],
       "allocation": {
-        "unit": "50kg bag of DAP",
-        "bagsPerAcre": 2,
-        "maxBags": 12,
+        "unit": "50kg bag",
+        "plantingBagsPerAcre": 2,
+        "topDressingBagsPerAcre": 2,
+        "bagsPerAcre": 4,
+        "maxBags": 100,
         "pricePerBagKes": 2500
       },
-      "source": "MOALD Circular 2024/02, Schedule 1"
+      "source": "MOALD Circular 2026/02, Schedule 1"
     },
     {
       "id": "ncpb-nakuru",
       "name": "NCPB Nakuru",
       "county": "Nakuru",
-      "program": "Subsidised Fertiliser Programme 2024",
-      "requires": ["national_id", "evoucher_code", "coop_membership"],
+      "program": "National Fertilizer Subsidy Programme 2026",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "wao_form",
+        "proof_of_land",
+        "coop_membership"
+      ],
       "allocation": {
-        "unit": "50kg bag of DAP",
-        "bagsPerAcre": 2,
-        "maxBags": 8,
+        "unit": "50kg bag",
+        "plantingBagsPerAcre": 2,
+        "topDressingBagsPerAcre": 2,
+        "bagsPerAcre": 4,
+        "maxBags": 100,
         "pricePerBagKes": 2500
       },
-      "source": "MOALD Circular 2024/02, Schedule 2"
+      "source": "MOALD Circular 2026/02, Schedule 1"
     }
-  ]
+  ],
+  "circular": "MOALD Circular 2026/02",
+  "operatingProcedure": "NCPB Operating Circular 4B",
+  "paymentAtDepot": {
+    "cashAccepted": false,
+    "headline": "Zero cash accepted at the depot",
+    "notice": "Cash is NOT accepted at any NCPB depot counter. Pay to the NCPB till number displayed at the depot, or deposit at the bank the depot manager names, and carry the receipt.",
+    "source": "NCPB Operating Circular 4B, Section 5.1"
+  }
 }

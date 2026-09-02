@@ -16,7 +16,12 @@ export type DocumentGroupRule = {
 
 export type Allocation = {
   unit: string;
+  /** Statutory split: 2 planting + 2 top-dressing per acre. */
+  plantingBagsPerAcre: number;
+  topDressingBagsPerAcre: number;
+  /** The two above, summed. Held explicitly so the rules file stays the source. */
   bagsPerAcre: number;
+  /** Absolute statutory ceiling per farmer, not a per-depot limit. */
   maxBags: number;
   pricePerBagKes: number;
 };
@@ -32,9 +37,19 @@ export type Depot = {
   source: string;
 };
 
+export type PaymentAtDepot = {
+  cashAccepted: boolean;
+  headline: string;
+  notice: string;
+  source: string;
+};
+
 export type SchemeRules = {
   version: string;
   note?: string;
+  circular?: string;
+  operatingProcedure?: string;
+  paymentAtDepot?: PaymentAtDepot;
   documents: Record<DocumentId, DocumentRule>;
   documentGroups: Record<string, DocumentGroupRule>;
   depots: Depot[];
@@ -60,11 +75,13 @@ export type MissingRequirement = {
 
 export type Costing = {
   bags: number;
+  plantingBags: number;
+  topDressingBags: number;
   unit: string;
   pricePerBagKes: number;
   totalKes: number;
-  /** Whether the depot's ceiling bound the allocation rather than acreage. */
-  cappedByDepotCeiling: boolean;
+  /** Whether the statutory ceiling bound the allocation rather than acreage. */
+  cappedByStatutoryCeiling: boolean;
   maxBags: number;
   bagsPerAcre: number;
 };
