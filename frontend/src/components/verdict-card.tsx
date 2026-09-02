@@ -1,4 +1,4 @@
-import { CircleCheck, CircleSlash, FileText } from "lucide-react";
+import { CircleCheck, CircleSlash, FileText, TriangleAlert } from "lucide-react";
 
 import {
   Card,
@@ -26,6 +26,10 @@ export function VerdictCard({ result }: { result: TriageResult }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* A provisional depot has no gazetted schedule behind it. Saying so
+          above the verdict is the whole point: the product's promise is that
+          the numbers are the official ones, and here they are not yet. */}
+      {result.depot.provisional && <ProvisionalNotice depot={result.depot.name} />}
       <Card className="pt-0">
         {/* Filled block, not coloured text. The surfaces are green now, so
             green text would read as decoration; a solid band reads as a
@@ -81,8 +85,9 @@ export function VerdictCard({ result }: { result: TriageResult }) {
         <CardHeader>
           <CardTitle>Official allocation and cost</CardTitle>
           <CardDescription>
-            Gazetted rates for {result.depot.program}. Do not pay more than
-            this.
+            {result.depot.provisional
+              ? `Provisional figures for ${result.depot.program} — not yet confirmed against a circular for this depot.`
+              : `Gazetted rates for ${result.depot.program}. Do not pay more than this.`}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -133,6 +138,25 @@ export function VerdictCard({ result }: { result: TriageResult }) {
           </ul>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function ProvisionalNotice({ depot }: { depot: string }) {
+  return (
+    <div className="border-gate/40 bg-gate/5 flex items-start gap-3 rounded-md border p-4">
+      <TriangleAlert className="text-gate mt-0.5 size-5 shrink-0" aria-hidden />
+      <div className="flex flex-col gap-1">
+        <span className="font-heading text-gate">
+          Figures for {depot} are not confirmed
+        </span>
+        <span className="text-sm">
+          No government circular has been loaded for this depot yet. The
+          documents, cap and price below are the programme baseline, not the
+          gazetted schedule for {depot}. Confirm at the depot before you rely
+          on them.
+        </span>
+      </div>
     </div>
   );
 }

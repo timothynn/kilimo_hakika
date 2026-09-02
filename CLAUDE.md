@@ -32,12 +32,66 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 
 | Group | Routes | Audience |
 |---|---|---|
-| `(farmer)` | `/`, `/check`, `/login`, `/signup` | Smallholder farmers. Public. |
+| `(farmer)` | `/`, `/dashboard`, `/check`, `/check/history`, `/check/profile`, `/login`, `/signup` | Smallholder farmers. Public. |
 | `(depot)` | `/depot/*` | Depot officers verifying arrivals. Passphrase-gated. |
 
 **Landing page** (`/`) is the marketing surface: hero, the problem, the three questions, how it works, both sign-in doors, and the scope boundaries stated as a feature. Modelled on [agrivana.framer.ai](https://agrivana.framer.ai/). Sections animate in via `components/reveal.tsx`.
 
-**Farmer platform.** `/check` is the wizard: acreage → depot → documents held → one result screen answering all three questions.
+**Farmer platform.** `/check` is the wizard: acreage → depot → documents held → one result screen answering all three questions. `/dashboard` is where a signed-in farmer lands. `/check/history` is their own copy of past verdicts, read-only. `/check/profile` is the stored profile the wizard prefills from.
+
+`/dashboard` and `/check/*` live in the `(farmer)/(app)/` route group, which is URL-invisible and exists only to hang the side menu on. A new page dropped in there gets the menu without changing its path; the landing page and the auth screens sit outside it and keep their own chrome.
+
+**The dashboard is a summary, not a home for new features.** It shows the last verdict, the stored land size and county, and a large "Check a depot" button — nothing that does not already serve one of the three questions. It is the single destination for every "back into the app" path: sign-in, sign-up, the result screen's primary button, and the name chip in the landing header all send the farmer to `/dashboard`. Signed out it redirects to `/login`, and its menu entry is hidden.
+
+### The farmer profile
+
+Registration already captures land size and county, so a returning farmer should never retype them. `/check/profile` is where they live, and `/check` reads them on every render.
+
+What gets prefilled, and what deliberately does not:
+
+- **Land size** — from the profile. Editable in the wizard: people farm more than one parcel and the stored figure goes stale.
+- **Depot** — their last checked depot, else the first depot in their county. The depot list is also sorted so their county comes first; the policy file's order otherwise puts a depot three counties away at the top.
+- **Documents — never.** A pre-ticked box claims the farmer is holding a paper they may have lost, sold the lease on, or let expire since last month. The gap list has to describe what is in their hand right now, so step three always starts empty. This is the one prefill that would turn a convenience into a wrong verdict.
+
+**A farmer may edit their land size and county, and nothing else.** Name, phone and national ID are what a depot officer reads back against the card at the gate — a self-service edit on those turns the registry into whatever the farmer last typed. They are shown read-only with "correct this in person", the same reasoning as the PIN reset. `farmerProfileSchema` is the enforced contract, and `updateFarmerProfile` in `lib/db.ts` only ever writes those two columns.
+
+The save is a server action (`check/profile/actions.ts`) and **takes the farmer id from the session cookie, never from the form.** A hidden id field would let anyone edit anyone.
+
+### County and depot
+
+County is picked from `lib/counties.ts` — all 47, in the First Schedule order, sorted alphabetically for display. It is **reference data, not policy**, and no verdict, cap or price derives from it, which is why it sits in code rather than in `scheme_rules.json`.
+
+**County is a picker everywhere it is captured** — the wizard, sign-up and the profile — because the string has to match `depot.county` exactly. A farmer who typed "nyeri county" would silently never be shown the depot that serves them. `normaliseCounty()` absorbs values stored free-text before this, and `counties.test.ts` asserts every depot in the rules file sits in a real county, since a typo there fails the same way: silently.
+
+Choosing a county in step one preselects that county's depot in step two and shows it as a card; every other depot stays reachable from a dropdown below it. Changing the county re-points the depot on purpose — a stale depot from the previous county is the wrong thing to leave selected.
+
+#### Provisional depots
+
+`scheme_rules.json` now carries **one depot per county, 47 in total. Only three of them are real.** NCPB Eldoret, Kitale and Nakuru come from MOALD Circular 2024/02 with their own caps, prices and document lists. The other 44 were generated to make every county selectable, and their figures — 2 bags/acre, 10 max, 2,500 KES, the three baseline documents — are a placeholder copied from the programme, not a gazetted schedule.
+
+Those 44 carry `"provisional": true` and a `source` beginning `UNVERIFIED —`. **That flag is load-bearing and four tests defend it:**
+
+- every county is covered exactly once
+- a depot whose source is `UNVERIFIED` must have `provisional: true`
+- a `provisional` depot must not claim a real-looking source
+- the three cited depots stay cited, with `Circular` in the source
+
+The flag flows `Depot` → `TriageResult.depot.provisional` → the UI. A provisional verdict renders a warning above it ("Figures for NCPB Nyeri are not confirmed"), the costing card says "Provisional figures … not yet confirmed against a circular" instead of "Gazetted rates", and the depot card in step two of the wizard carries the same line. The `UNVERIFIED` string also lands in the citation list, so "Where this comes from" shows it.
+
+**Deleting the flag while keeping the numbers is the worst change anyone can make to this repo.** It converts a labelled guess into a statutory claim, which is the one failure the product cannot survive. Promoting a depot means replacing its allocation block and `requires` with the real schedule, swapping `source` for the citation, and deleting `provisional` — a data edit, no code change.
+
+**A signed-in farmer's check is attributed from their session**, not from a posted `nationalId` — the wizard never sends one, so before this was wired up every check by a signed-in farmer landed in `check_events` with a null `farmer_id`, leaving both the farmer's history and the officer's "what this farmer was told" panel permanently empty. The session wins over a posted `nationalId` because the cookie is the only identity claim on that endpoint that is actually signed. The result screen's "Go to my dashboard" button goes to `/dashboard`, and is hidden when signed out.
+
+Phone is the sign-in identifier and is currently unchangeable by anyone — there is no officer-side edit either. A farmer who loses that number loses the account. That needs an officer-side correction flow before real deployment.
+
+### Side menu
+
+Both signed-in surfaces share `components/app-shell.tsx` — shadcn's `sidebar` in `collapsible="icon"` mode, which becomes a sheet on mobile. `variant="farmer"` wraps the `(farmer)/(app)/` group (`/dashboard`, `/check/*`); `variant="depot"` wraps the console group. The landing page keeps `SiteHeader` instead; a marketing page with a side menu reads as an app you have to log into.
+
+- **The menu is navigation, not a gate.** The farmer variant renders for a signed-out visitor too — it swaps the footer for a sign-in link and hides the `FARMER_ACCOUNT_ONLY` entries — Dashboard, My past checks, My details — which need an account to mean anything. Do not make the shell require a session; `/check` without an account is a product rule.
+- **The signed-in farmer's name in the landing header is a link into `/dashboard`**, not a label. It is the way back into the app for someone who arrives at the marketing page with a live session.
+- **The logo moves into the sidebar header** on these screens, so the pages under them must not render their own. One visible instance per screen.
+- **Sign-out stays a plain form post** in both variants, for the same reason the officer sign-in form is plain HTML: a gate terminal with a broken bundle still has to be able to get out.
 
 **`/check` must stay usable with no account. This is a product rule, not a default.** A farmer deciding whether to spend bus fare should not first have to hand over their national ID. Accounts exist so a depot officer can find someone at the gate; that is the only reason. If a change would require signing in to get a verdict, the change is wrong.
 
@@ -83,7 +137,7 @@ Data flow (as shipped today): farmer inputs → `POST /api/triage` → the TypeS
 
 | Route | Method | Auth | Purpose |
 |---|---|---|---|
-| `/api/triage` | POST | none | Run a check. Links to a farmer if `nationalId` matches one. |
+| `/api/triage` | POST | none | Run a check. Links to the signed-in farmer, else to one matching a posted `nationalId`. |
 | `/api/farmers` | GET | officer | List the registry |
 | `/api/farmers` | POST | none | Registration without an account (no PIN) |
 | `/api/farmers/[id]/serve` | POST | officer | Record a collection |
@@ -138,8 +192,8 @@ Rules for this file:
 
 Wizard-style, digital-kiosk feel. Minimal inputs, in this order:
 
-1. Acreage
-2. Target depot
+1. Acreage and county
+2. Target depot — the county's depot is preselected, with a dropdown for the others
 3. Checkbox list of documents currently held
 
 Then one result screen answering all three questions at once.
@@ -164,9 +218,9 @@ Rules:
 - Forms: `react-hook-form` + `zod` via shadcn's `Form` components. The zod schema for farmer inputs is the frontend's input contract; the backend still validates independently — never trust client validation for a verdict.
 - Accessibility is not optional — shadcn builds on Radix primitives; keep the primitive's semantics and keyboard behavior intact when customizing.
 
-Installed: `form`, `input`, `select`, `checkbox`, `radio-group`, `label`, `card`, `alert`, `badge`, `button`, `separator`, `progress`, `table`.
+Installed: `form`, `input`, `select`, `checkbox`, `radio-group`, `label`, `card`, `alert`, `badge`, `button`, `separator`, `progress`, `table`, `sidebar` (which pulls in `sheet`, `tooltip`, `skeleton` and `hooks/use-mobile.ts`).
 
-Shared app components: `components/verdict-card.tsx` (the answer screen, used by both platforms), `components/triage-wizard.tsx`, `components/register-form.tsx`.
+Shared app components: `components/app-shell.tsx` (the side menu, both platforms), `components/verdict-card.tsx` (the answer screen, used by both platforms), `components/triage-wizard.tsx`, `components/register-form.tsx`.
 
 ## Design tokens
 
@@ -305,6 +359,7 @@ The seed prints an ID to try in the gate console. `frontend/.env*` is git-ignore
 - `node:sqlite` types need `@types/node` ≥ 24. On ^20 the build fails with `Cannot find module 'node:sqlite'`.
 - Adding a column to `database/schema.sql` does **not** reach an existing database — `CREATE TABLE IF NOT EXISTS` is a no-op on a table that already exists, and SQLite has no `ADD COLUMN IF NOT EXISTS`. Add it to `migrate()` in `src/lib/db.ts`, which checks `pragma_table_info` first. This bit once already, with `pin_hash`.
 - Images live in `public/img/` and are committed. Keep any replacement under ~250KB and credited in `CREDITS.md` — two of the four are CC BY / CC BY-SA, and the landing footer carries the attribution they require. Removing that footer without removing the photos is a licence violation.
+- `hooks/use-mobile.ts` was rewritten off the shadcn default, which sets state inside an effect and so fails `react-hooks/set-state-in-effect` — the same rule that shapes `reveal.tsx`. It uses `useSyncExternalStore` instead. Re-running `shadcn add sidebar` will overwrite it and reintroduce the lint error.
 - Animation is one small component using IntersectionObserver plus a CSS transition. Reduced motion is handled with Tailwind's `motion-reduce` variant rather than a JS branch, because `react-hooks/set-state-in-effect` rejects setting state directly in an effect.
 - Update this section as decisions land.
 

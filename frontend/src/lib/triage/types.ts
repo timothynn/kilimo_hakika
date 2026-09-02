@@ -29,6 +29,13 @@ export type Depot = {
   /** Document ids and/or documentGroup ids. */
   requires: string[];
   allocation: Allocation;
+  /**
+   * True when this depot's figures are a placeholder rather than a gazetted
+   * schedule. Provisional depots exist so every county is selectable; their
+   * caps, price and document list are the programme baseline, not policy, and
+   * `source` says so. The UI must label a provisional verdict as unverified.
+   */
+  provisional?: boolean;
   source: string;
 };
 
@@ -71,7 +78,14 @@ export type Costing = {
 
 export type TriageResult = {
   verdict: Verdict;
-  depot: { id: string; name: string; county: string; program: string };
+  depot: {
+    id: string;
+    name: string;
+    county: string;
+    program: string;
+    /** See Depot.provisional. Carried through so the UI can warn. */
+    provisional?: boolean;
+  };
   acres: number;
   missing: MissingRequirement[];
   costing: Costing;

@@ -93,6 +93,7 @@ export function triage(rules: SchemeRules, input: TriageInput): TriageResult {
       name: depot.name,
       county: depot.county,
       program: depot.program,
+      provisional: depot.provisional,
     },
     acres: input.acres,
     missing,

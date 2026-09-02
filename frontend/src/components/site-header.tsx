@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LayoutDashboard } from "lucide-react";
 
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,16 @@ export function SiteHeader({ farmerName }: { farmerName?: string }) {
         <div className="ml-auto flex items-center gap-2">
           {farmerName ? (
             <>
-              <span className="text-muted-foreground hidden text-sm sm:inline">
-                {farmerName}
-              </span>
+              {/* The name is the way back into the signed-in area -- a farmer
+                  who lands here again should not have to hunt for it. */}
+              <Link
+                href="/dashboard"
+                className="bg-secondary text-foreground hover:bg-accent focus-visible:ring-ring inline-flex max-w-[10rem] items-center gap-1.5 truncate rounded-md px-2.5 py-1.5 text-sm font-medium focus-visible:ring-2 focus-visible:outline-none"
+              >
+                <LayoutDashboard className="size-4 shrink-0" aria-hidden />
+                <span className="truncate">{farmerName}</span>
+                <span className="sr-only">— open my dashboard</span>
+              </Link>
               <form action="/api/farmer/sign-out" method="post">
                 <Button type="submit" variant="ghost" size="sm">
                   Sign out

@@ -182,6 +182,25 @@ export function findFarmerById(id: string): Farmer | null {
   return row ? toFarmer(row) : null;
 }
 
+/**
+ * Update the parts of a profile a farmer owns: land size and county.
+ *
+ * Deliberately narrow. Name, phone and national ID are gate-identity fields —
+ * an officer reads them back against the card — so they are not self-editable.
+ * Returns null if the row is gone, which happens when a session outlives it.
+ */
+export function updateFarmerProfile(input: {
+  id: string;
+  county: string;
+  acres: number;
+}): Farmer | null {
+  getDb()
+    .prepare(`UPDATE farmers SET county = ?, acres = ? WHERE id = ?`)
+    .run(input.county, input.acres, input.id);
+
+  return findFarmerById(input.id);
+}
+
 export function listFarmers(options: { county?: string } = {}): Farmer[] {
   const rows = options.county
     ? (getDb()

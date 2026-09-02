@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export default async function SignUpPage() {
-  if (await currentFarmer()) redirect("/check");
+  if (await currentFarmer()) redirect("/dashboard");
 
   return (
     <AuthSplit

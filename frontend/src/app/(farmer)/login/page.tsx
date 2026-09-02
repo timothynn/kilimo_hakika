@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   // Already signed in? Nothing to do here.
-  if (await currentFarmer()) redirect("/check");
+  if (await currentFarmer()) redirect("/dashboard");
 
   return (
     <AuthSplit

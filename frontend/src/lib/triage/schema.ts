@@ -75,6 +75,23 @@ export const farmerRegistrationSchema = z.object({
 
 export type FarmerRegistrationPayload = z.infer<typeof farmerRegistrationSchema>;
 
+/**
+ * What a farmer may change about themselves.
+ *
+ * Land size and county only. Name, phone and national ID are the fields a
+ * depot officer reads back against the card in the farmer's hand, so they are
+ * corrected in person, not self-served — same reasoning as the PIN reset.
+ */
+export const farmerProfileSchema = z.object({
+  county: z.string().trim().min(2, "Enter your county").max(60),
+  acres: z
+    .number({ message: "Enter your land size in acres" })
+    .positive("Land size must be greater than zero")
+    .max(1000, "Enter land size in acres — 1000 is the maximum this tool handles"),
+});
+
+export type FarmerProfilePayload = z.infer<typeof farmerProfileSchema>;
+
 /** Depot officer looking a farmer up at the gate. */
 export const farmerLookupSchema = z.object({
   nationalId: nationalIdSchema,

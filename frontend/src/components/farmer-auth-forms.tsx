@@ -19,6 +19,14 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { COUNTIES_ALPHABETICAL } from "@/lib/counties";
 import { farmerSignInSchema, farmerSignUpSchema } from "@/lib/triage/schema";
 
 /** Shared field sizing: tall targets, room for the leading icon. */
@@ -53,7 +61,7 @@ export function FarmerSignInForm() {
         setError(data.error ?? "Could not sign you in.");
         return;
       }
-      router.push("/check");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       setError("Could not reach the service. Check your connection and retry.");
@@ -195,7 +203,7 @@ export function FarmerSignUpForm() {
         setError(data.error ?? "Could not create your account.");
         return;
       }
-      router.push("/check");
+      router.push("/dashboard");
       router.refresh();
     } catch {
       setError("Could not reach the service. Check your connection and retry.");
@@ -267,12 +275,25 @@ export function FarmerSignUpForm() {
             label="County"
             icon={<Landmark className="size-4" />}
           >
-            <Input
-              id="county"
+            {/* A picker, not free text: the stored county has to match the
+                rules file for the farmer's depot to be found later. */}
+            <Select
               value={values.county}
-              onChange={set("county")}
-              className={FIELD}
-            />
+              onValueChange={(next) =>
+                setValues((current) => ({ ...current, county: next }))
+              }
+            >
+              <SelectTrigger id="county" className={`${FIELD} !h-11`}>
+                <SelectValue placeholder="Choose your county" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTIES_ALPHABETICAL.map((name) => (
+                  <SelectItem key={name} value={name}>
+                    {name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </IconField>
 
           <IconField

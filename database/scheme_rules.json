@@ -37,31 +37,803 @@
     "proof_of_land": {
       "label": "Proof of land",
       "detail": "Any one of these satisfies the land requirement.",
-      "anyOf": ["land_title", "lease_agreement"],
+      "anyOf": [
+        "land_title",
+        "lease_agreement"
+      ],
       "source": "MOALD Circular 2024/02, s.5"
     }
   },
   "depots": [
     {
-      "id": "ncpb-eldoret",
-      "name": "NCPB Eldoret",
-      "county": "Uasin Gishu",
+      "id": "ncpb-baringo",
+      "name": "NCPB Baringo",
+      "county": "Baringo",
       "program": "Subsidised Fertiliser Programme 2024",
-      "requires": ["national_id", "evoucher_code", "proof_of_land"],
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
       "allocation": {
         "unit": "50kg bag of DAP",
         "bagsPerAcre": 2,
         "maxBags": 10,
         "pricePerBagKes": 2500
       },
-      "source": "MOALD Circular 2024/02, Schedule 1"
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-bomet",
+      "name": "NCPB Bomet",
+      "county": "Bomet",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-bungoma",
+      "name": "NCPB Bungoma",
+      "county": "Bungoma",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-busia",
+      "name": "NCPB Busia",
+      "county": "Busia",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-elgeyo-marakwet",
+      "name": "NCPB Elgeyo-Marakwet",
+      "county": "Elgeyo-Marakwet",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-embu",
+      "name": "NCPB Embu",
+      "county": "Embu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-garissa",
+      "name": "NCPB Garissa",
+      "county": "Garissa",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-homa-bay",
+      "name": "NCPB Homa Bay",
+      "county": "Homa Bay",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-isiolo",
+      "name": "NCPB Isiolo",
+      "county": "Isiolo",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kajiado",
+      "name": "NCPB Kajiado",
+      "county": "Kajiado",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kakamega",
+      "name": "NCPB Kakamega",
+      "county": "Kakamega",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kericho",
+      "name": "NCPB Kericho",
+      "county": "Kericho",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kiambu",
+      "name": "NCPB Kiambu",
+      "county": "Kiambu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kilifi",
+      "name": "NCPB Kilifi",
+      "county": "Kilifi",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kirinyaga",
+      "name": "NCPB Kirinyaga",
+      "county": "Kirinyaga",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kisii",
+      "name": "NCPB Kisii",
+      "county": "Kisii",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kisumu",
+      "name": "NCPB Kisumu",
+      "county": "Kisumu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kitui",
+      "name": "NCPB Kitui",
+      "county": "Kitui",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-kwale",
+      "name": "NCPB Kwale",
+      "county": "Kwale",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-laikipia",
+      "name": "NCPB Laikipia",
+      "county": "Laikipia",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-lamu",
+      "name": "NCPB Lamu",
+      "county": "Lamu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-machakos",
+      "name": "NCPB Machakos",
+      "county": "Machakos",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-makueni",
+      "name": "NCPB Makueni",
+      "county": "Makueni",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-mandera",
+      "name": "NCPB Mandera",
+      "county": "Mandera",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-marsabit",
+      "name": "NCPB Marsabit",
+      "county": "Marsabit",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-meru",
+      "name": "NCPB Meru",
+      "county": "Meru",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-migori",
+      "name": "NCPB Migori",
+      "county": "Migori",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-mombasa",
+      "name": "NCPB Mombasa",
+      "county": "Mombasa",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-murang-a",
+      "name": "NCPB Murang'a",
+      "county": "Murang'a",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-nairobi-city",
+      "name": "NCPB Nairobi City",
+      "county": "Nairobi City",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-nakuru",
+      "name": "NCPB Nakuru",
+      "county": "Nakuru",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "coop_membership"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 8,
+        "pricePerBagKes": 2500
+      },
+      "source": "MOALD Circular 2024/02, Schedule 2"
+    },
+    {
+      "id": "ncpb-nandi",
+      "name": "NCPB Nandi",
+      "county": "Nandi",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-narok",
+      "name": "NCPB Narok",
+      "county": "Narok",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-nyamira",
+      "name": "NCPB Nyamira",
+      "county": "Nyamira",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-nyandarua",
+      "name": "NCPB Nyandarua",
+      "county": "Nyandarua",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-nyeri",
+      "name": "NCPB Nyeri",
+      "county": "Nyeri",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-samburu",
+      "name": "NCPB Samburu",
+      "county": "Samburu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-siaya",
+      "name": "NCPB Siaya",
+      "county": "Siaya",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-taita-taveta",
+      "name": "NCPB Taita Taveta",
+      "county": "Taita Taveta",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-tana-river",
+      "name": "NCPB Tana River",
+      "county": "Tana River",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-tharaka-nithi",
+      "name": "NCPB Tharaka-Nithi",
+      "county": "Tharaka-Nithi",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
     },
     {
       "id": "ncpb-kitale",
       "name": "NCPB Kitale",
       "county": "Trans Nzoia",
       "program": "Subsidised Fertiliser Programme 2024",
-      "requires": ["national_id", "evoucher_code", "proof_of_land", "chief_letter"],
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land",
+        "chief_letter"
+      ],
       "allocation": {
         "unit": "50kg bag of DAP",
         "bagsPerAcre": 2,
@@ -71,18 +843,98 @@
       "source": "MOALD Circular 2024/02, Schedule 1"
     },
     {
-      "id": "ncpb-nakuru",
-      "name": "NCPB Nakuru",
-      "county": "Nakuru",
+      "id": "ncpb-turkana",
+      "name": "NCPB Turkana",
+      "county": "Turkana",
       "program": "Subsidised Fertiliser Programme 2024",
-      "requires": ["national_id", "evoucher_code", "coop_membership"],
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
       "allocation": {
         "unit": "50kg bag of DAP",
         "bagsPerAcre": 2,
-        "maxBags": 8,
+        "maxBags": 10,
         "pricePerBagKes": 2500
       },
-      "source": "MOALD Circular 2024/02, Schedule 2"
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-eldoret",
+      "name": "NCPB Eldoret",
+      "county": "Uasin Gishu",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "source": "MOALD Circular 2024/02, Schedule 1"
+    },
+    {
+      "id": "ncpb-vihiga",
+      "name": "NCPB Vihiga",
+      "county": "Vihiga",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-wajir",
+      "name": "NCPB Wajir",
+      "county": "Wajir",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
+    },
+    {
+      "id": "ncpb-west-pokot",
+      "name": "NCPB West Pokot",
+      "county": "West Pokot",
+      "program": "Subsidised Fertiliser Programme 2024",
+      "requires": [
+        "national_id",
+        "evoucher_code",
+        "proof_of_land"
+      ],
+      "allocation": {
+        "unit": "50kg bag of DAP",
+        "bagsPerAcre": 2,
+        "maxBags": 10,
+        "pricePerBagKes": 2500
+      },
+      "provisional": true,
+      "source": "UNVERIFIED — provisional entry. No circular schedule has been supplied for this county; figures mirror the programme baseline and must be replaced with the gazetted schedule before this depot is trusted."
     }
   ]
 }
