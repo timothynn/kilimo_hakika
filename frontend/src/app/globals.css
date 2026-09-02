@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-source-sans); /* body — plain, highly legible */
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-oswald); /* headers/labels — condensed, depot signage */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Kilimo Hakika product vocabulary — see CLAUDE.md "Design tokens" */
+  --color-proceed: var(--proceed);
+  --color-proceed-foreground: var(--proceed-foreground);
+  --color-gate: var(--gate);
+  --color-gate-foreground: var(--gate-foreground);
+  --color-statutory: var(--statutory);
+  --color-statutory-strong: var(--statutory-strong);
+}
+
+:root {
+  /* --- Kilimo Hakika palette ---------------------------------------
+     Named colors are the six from design-tokens.md. Anything else is
+     derived from ledger paper by lightening/darkening, and is marked.
+
+       ledger paper   #EDE6D3   background
+       depot ink      #1C2620   primary text
+       proceed green  #2E6B45   verdict: go
+       gate red       #A3321F   verdict: stop
+       gazette brass  #A67C3D   statutory numbers only
+       ash gray       #6E6656   secondary text, borders, dividers
+     ----------------------------------------------------------------- */
+
+  --background: #ede6d3; /* ledger paper */
+  --foreground: #1c2620; /* depot ink */
+
+  --card: #f5f1e4; /* derived: paper lifted, so cards read as a page on a desk */
+  --card-foreground: #1c2620;
+  --popover: #f5f1e4; /* derived */
+  --popover-foreground: #1c2620;
+
+  --primary: #1c2620; /* depot ink — buttons are stamped, not colorful */
+  --primary-foreground: #ede6d3;
+
+  --secondary: #e0d7bf; /* derived: paper darkened */
+  --secondary-foreground: #1c2620;
+  --muted: #e0d7bf; /* derived */
+  --muted-foreground: #6e6656; /* ash gray */
+  --accent: #e0d7bf; /* derived */
+  --accent-foreground: #1c2620;
+
+  /* Deliberately NOT gate red. Destructive = "you are about to lose data".
+     Gate red = "the depot will turn you away". Different meanings must not
+     share a swatch. This is a deeper oxblood so the two never get confused. */
+  --destructive: #6e2214;
+
+  --border: #6e6656; /* ash gray — ruled lines, on purpose. Soften per-use with /40 */
+  --input: #6e6656;
+  --ring: #a67c3d; /* gazette brass */
+
+  --chart-1: #2e6b45;
+  --chart-2: #a67c3d;
+  --chart-3: #6e6656;
+  --chart-4: #a3321f;
+  --chart-5: #1c2620;
+
+  --radius: 0.375rem; /* squarer than shadcn's default — forms, not consumer app */
+
+  --sidebar: #e0d7bf;
+  --sidebar-foreground: #1c2620;
+  --sidebar-primary: #1c2620;
+  --sidebar-primary-foreground: #ede6d3;
+  --sidebar-accent: #ede6d3;
+  --sidebar-accent-foreground: #1c2620;
+  --sidebar-border: #6e6656;
+  --sidebar-ring: #a67c3d;
+
+  /* --- Product vocabulary ------------------------------------------
+     Verdict + statutory tokens. Never use these decoratively.
+     ----------------------------------------------------------------- */
+
+  --proceed: #2e6b45; /* 5.1:1 on ledger paper — passes AA */
+  --proceed-foreground: #ede6d3;
+  --gate: #a3321f; /* 5.6:1 on ledger paper — passes AA */
+  --gate-foreground: #ede6d3;
+
+  /* Brass is 3.0:1 on ledger paper: large text only (>=24px, or >=18.66px
+     bold). For a statutory number at body size use --statutory-strong
+     (4.7:1). Prices are the one thing a farmer must not misread. */
+  --statutory: #a67c3d;
+  --statutory-strong: #7f5f2f;
+}
+
+/* No .dark block, on purpose.
+   The palette is printed paper — a gazette notice, a depot gate sign. There
+   is no dark equivalent yet, and inverting these values breaks the metaphor
+   and the measured contrast ratios at the same time. If dark mode is wanted,
+   the palette needs to be designed, not derived. See CLAUDE.md.
+   The `dark:` variant is still declared above, so shadcn's built-in
+   dark: utilities compile; they simply never match. */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading tracking-wide;
+  }
+}
