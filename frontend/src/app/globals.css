@@ -175,3 +175,60 @@
     @apply font-heading tracking-wide;
   }
 }
+/* --- Entrance animation -------------------------------------------------
+   Used by the split auth screens. Kept as plain keyframes rather than a
+   library: these pages are the first thing a farmer loads on a weak
+   connection. Every one is disabled under prefers-reduced-motion, because
+   motion here is decoration and never carries information.
+   ---------------------------------------------------------------------- */
+
+@keyframes kh-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes kh-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slow drift on the photo. Long and small on purpose -- a fast or large
+   movement behind a form is distracting when someone is typing a PIN. */
+@keyframes kh-slow-zoom {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@utility animate-fade-up {
+  animation: kh-fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@utility animate-fade-in {
+  animation: kh-fade-in 0.9s ease-out both;
+}
+
+@utility animate-slow-zoom {
+  animation: kh-slow-zoom 24s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-fade-in,
+  .animate-slow-zoom {
+    animation: none;
+  }
+}

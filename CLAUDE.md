@@ -41,6 +41,19 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 
 **`/check` must stay usable with no account. This is a product rule, not a default.** A farmer deciding whether to spend bus fare should not first have to hand over their national ID. Accounts exist so a depot officer can find someone at the gate; that is the only reason. If a change would require signing in to get a verdict, the change is wrong.
 
+### Sign-in screens
+
+`/login`, `/signup` and `/depot/sign-in` share `components/auth-split.tsx`: full-screen split, photograph left, form panel right, stacked on small screens. `IconField` from the same file puts the label in a notch on the input border with a leading icon.
+
+Rules that hold across all three:
+
+- **No social sign-in buttons.** There are no OAuth providers wired up, and a button that fails on click is worse than no button. The farmer screen uses that space for "check a depot without signing in" instead.
+- **No self-serve PIN reset.** There is no SMS gateway to send a code through, and a reset without one is a way in for anyone who knows a farmer's phone number. The copy directs them to a depot officer in person. Add the reset only when there is a channel to verify through.
+- **The officer form is plain HTML with no JavaScript dependency.** A gate terminal on a bad connection still has to be able to sign in.
+- **Photographs are decorative:** empty `alt`, `aria-hidden` overlay, and the panel works if the image never loads. A deep-forest gradient sits over the photo so white type stays legible regardless of the crop.
+
+Entrance animation is keyframes in `globals.css` (`kh-fade-up`, `kh-fade-in`, `kh-slow-zoom`) exposed as `@utility` classes, all disabled inside a `prefers-reduced-motion` block. The photo drift is deliberately slow and small — fast movement behind someone typing a PIN is distracting.
+
 **Depot officer platform.** `/depot` looks a farmer up by full national ID and shows what they were told before travelling. `/depot/farmers` lists the registry. `/depot/farmers/[id]` shows check history and records what the farmer actually collected. A service record is what happened; a check is what we predicted. They are separate tables on purpose, and they are allowed to differ.
 
 ## Architecture
