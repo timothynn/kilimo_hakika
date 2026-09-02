@@ -1,5 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
+
+import { Logo } from "@/components/logo";
 
 /**
  * Full-screen split auth layout: photograph on the left, form panel on the
@@ -45,6 +46,11 @@ export function AuthSplit({
           className="absolute inset-0 bg-gradient-to-t from-[#052118]/95 via-[#052118]/60 to-[#052118]/30"
         />
 
+        {/* Logo over the photo doubles as the way home from a sign-in dead end. */}
+        <div className="absolute top-6 left-6 z-10 hidden sm:left-10 sm:block lg:top-10 lg:left-14">
+          <Logo tone="dark" className="animate-fade-in" />
+        </div>
+
         <div className="absolute inset-0 flex flex-col justify-end gap-3 p-6 sm:p-10 lg:justify-center lg:p-14">
           <span className="animate-fade-up font-heading text-sm tracking-[0.2em] text-[#83f675] uppercase">
             {eyebrow}
@@ -67,12 +73,9 @@ export function AuthSplit({
       {/* ------------------------------------------------------------ Panel */}
       <div className="bg-card flex items-center justify-center px-4 py-10 sm:px-10">
         <div className="animate-fade-up w-full max-w-md" style={{ animationDelay: "120ms" }}>
-          <Link
-            href="/"
-            className="font-heading text-muted-foreground hover:text-foreground mb-8 inline-block text-lg tracking-wide"
-          >
-            KILIMO HAKIKA
-          </Link>
+          {/* Shown on small screens, where the photo panel's logo is hidden,
+              so there is always exactly one visible way back home. */}
+          <Logo className="mb-8 lg:hidden" />
           {children}
         </div>
       </div>

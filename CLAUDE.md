@@ -41,6 +41,16 @@ One Next.js app serves both audiences, as route groups sharing the token set and
 
 **`/check` must stay usable with no account. This is a product rule, not a default.** A farmer deciding whether to spend bus fare should not first have to hand over their national ID. Accounts exist so a depot officer can find someone at the gate; that is the only reason. If a change would require signing in to get a verdict, the change is wrong.
 
+### Logo
+
+`components/logo.tsx` is the brand lockup — mark, then `KILIMO HAKIKA` in Oswald — and it links home from every screen. `tone="dark"` places it over a photograph. Every screen gets exactly one visible instance; the auth screens swap between the photo-side and panel copies at the `lg` breakpoint so a small screen never shows two.
+
+Three things to know before touching it:
+
+- **`public/img/logomark.png` is the Agrivana reference site's mark**, taken from the `logo.svg` that renders as their wordmark lockup. Using another company's mark as this project's brand is a trademark problem, not a licensing one. `SproutMark` in the same file is an original vector drawn for this project; setting `USE_SUPPLIED_MARK = false` swaps to it in one line. That swap should happen before this ships under its own name.
+- **The supplied mark is lime `#83F675`, roughly 1.3:1 against the pale mint page — invisible unaided.** The deep-forest badge behind it is what makes it legible. Do not remove the badge and leave a bare lime mark on a light surface.
+- **The PNG is 22×22.** Crisp at that size, soft on any retina display above it. `SproutMark` is vector and takes its colour from `currentColor`, so it stays sharp and adapts to the surrounding text colour.
+
 ### Sign-in screens
 
 `/login`, `/signup` and `/depot/sign-in` share `components/auth-split.tsx`: full-screen split, photograph left, form panel right, stacked on small screens. `IconField` from the same file puts the label in a notch on the input border with a leading icon.
