@@ -206,14 +206,16 @@ class TriageRequest(BaseModel):
         description="Declared acreage under the named crop. Must be greater than 0.",
         examples=[4.5],
     )
-    crop_type: str = Field(
-        min_length=1,
+    crop_type: str | None = Field(
+        default=None,
         max_length=120,
         description=(
-            "Plain crop name, e.g. 'maize'. Used only to confirm the holding is "
-            "within the circular's gazetted crop scope. This service returns no "
-            "agronomic advice, and requests phrased as agronomy questions are "
-            "refused with HTTP 422."
+            "Optional. Plain crop name, e.g. 'maize'. Used only to confirm the "
+            "holding is within the circular's gazetted crop scope - never to "
+            "assess a farming decision. Omit it and the scope check is skipped "
+            "and `crop_within_gazetted_scope` returns null. This service "
+            "returns no agronomic advice, and a value phrased as an agronomy "
+            "question is refused with HTTP 422."
         ),
         examples=["maize"],
     )
@@ -341,12 +343,38 @@ class DocumentCheckItem(BaseModel):
     authority: str = Field(description="Circular clause imposing the requirement.")
 
 
+class PaymentNotice(BaseModel):
+    """
+    The statutory payment rule, returned on every verdict including PROCEED.
+
+    A farmer told to travel is precisely the one about to leave the house, so
+    this is the moment the cash rule matters most. Rendering it only on
+    DO_NOT_TRAVEL would put it in front of the people who are not going.
+    """
+
+    headline: str = Field(description="Short warning suitable for a banner.")
+    notice: str = Field(description="The full rule in plain language.")
+    accepted_means: list[str] = Field(
+        description="The payment methods NCPB does accept at the counter."
+    )
+    authority: str = Field(description="Circular clause imposing the rule.")
+    cash_accepted_at_depot: bool = Field(
+        description="Always false under the current circular."
+    )
+
+
 class TriageResponse(BaseModel):
     # --- the four blocks required by the specification -------------------
     verdict: Verdict
     gap_analysis: GapAnalysis
     financial_breakdown: FinancialBreakdown
     policy_grounding: PolicyGrounding
+    payment_notice: PaymentNotice = Field(
+        description=(
+            "The statutory 'no cash at the depot' rule. Present on every "
+            "verdict, PROCEED included."
+        )
+    )
 
     # --- additive detail for the frontend --------------------------------
     resolved_location: ResolvedLocation = Field(
@@ -365,11 +393,15 @@ class TriageResponse(BaseModel):
             "when the chosen depot cannot serve them. Never a vendor listing."
         )
     )
-    declared_crop: str = Field(description="The crop as submitted by the farmer.")
-    crop_within_gazetted_scope: bool = Field(
+    declared_crop: str | None = Field(
+        description="The crop as submitted by the farmer, or null if not declared."
+    )
+    crop_within_gazetted_scope: bool | None = Field(
         description=(
-            "Whether the declared crop falls inside the circular's crop schedule. "
-            "A statutory scope fact, not an agronomic assessment."
+            "Whether the declared crop falls inside the circular's crop "
+            "schedule. A statutory scope fact, not an agronomic assessment. "
+            "Null when no crop was declared, so 'not declared' is never "
+            "confused with 'outside the schedule'."
         )
     )
     next_steps: list[str] = Field(

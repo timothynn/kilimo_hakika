@@ -1,5 +1,34 @@
 # Integration: three engines, one verdict
 
+> **RESOLVED — 2 September 2026.** The consolidation described below has been
+> executed. `backend/app/` + `backend/main.py` (FastAPI) is now the single
+> source of truth for verdicts; `frontend/src/app/api/triage/route.ts`
+> delegates to it and has no local fallback. The TypeScript engine survives
+> only as a tested reference implementation wired to no route, and the
+> Streamlit trio at the repo root has been deleted.
+>
+> Also settled in the same pass:
+> - Allocation corrected to 2 planting + 2 top-dressing bags per acre, ceiling
+>   100 bags, flat KES 2,500 per 50kg bag. For 2.5 acres the answer is now
+>   10 bags / 25,000 KES everywhere, where the TS engine used to say 5 / 12,500.
+> - Citations standardised to **MOALD Circular 2026/02** and **NCPB Operating
+>   Circular 4B**.
+> - The `NON_CASH_PAYMENT_MEANS` rule is surfaced as `payment_notice` on every
+>   verdict, PROCEED included, and rendered prominently on the verdict card.
+> - The **market module was removed outright** — route, Postgres schema,
+>   permissions, roles, consent purpose, assistant tool and UI copy.
+> - The wizard now collects County → Constituency → Ward, and the
+>   original-vs-photocopy and leased-land-vs-stamped-lease distinctions are
+>   decidable inputs rather than prose.
+>
+> Still open: porting `anyOf` document groups and per-depot overrides into the
+> engine (see "What the TS engine gets right" below), and unifying identity.
+> The original analysis is kept for that work.
+
+---
+
+# Integration: three engines, one verdict
+
 Status: 2 September 2026. Written after merging `feat/depot-registry` (PR #4),
 then revised after PR #5 merged a *second* Python triage service into
 `backend/` while this one was being written.

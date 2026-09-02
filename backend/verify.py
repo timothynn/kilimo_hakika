@@ -216,9 +216,9 @@ def verify_passing_case(client) -> None:
         "does not process payments" in breakdown["statutory_notice"],
     )
     check(
-        "grounded in MOALD Circular 2026/02 and NCPB Circular 4B",
+        "grounded in MOALD Circular 2026/02 and NCPB Operating Circular 4B",
         grounding["circular"] == "MOALD Circular 2026/02"
-        and grounding["operating_procedure"] == "NCPB Circular 4B",
+        and grounding["operating_procedure"] == "NCPB Operating Circular 4B",
     )
     check("depot status reported as ACTIVE", grounding["depot_status"].startswith("ACTIVE"))
 
@@ -266,7 +266,7 @@ def verify_failing_case(client) -> None:
     check(
         "every reason cites a circular clause",
         all(
-            "MOALD Circular 2026/02" in r or "NCPB Circular 4B" in r
+            "MOALD Circular 2026/02" in r or "NCPB Operating Circular 4B" in r
             for r in gaps["rejection_reasons"]
         ),
     )

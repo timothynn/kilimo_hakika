@@ -453,3 +453,67 @@ def test_triage_response_exposes_no_payment_fields(client, passing_request):
 
     for forbidden in ("payment_url", "checkout_url", "paybill", "till_number", "phone"):
         assert forbidden not in breakdown
+
+
+# --------------------------------------------------------------------------
+# Statutory payment rule over HTTP
+# --------------------------------------------------------------------------
+
+
+def test_payment_notice_is_returned_on_proceed(client, passing_request):
+    body = client.post("/api/triage", json=passing_request).json()
+    assert body["verdict"]["status"] == "PROCEED"
+
+    notice = body["payment_notice"]
+    assert set(notice) == {
+        "headline",
+        "notice",
+        "accepted_means",
+        "authority",
+        "cash_accepted_at_depot",
+    }
+    assert notice["cash_accepted_at_depot"] is False
+    assert "NCPB Operating Circular 4B, Section 5.1" == notice["authority"]
+
+
+def test_scheme_endpoint_publishes_the_payment_rule(client):
+    body = client.get("/api/schemes/current").json()
+    assert body["payment_at_depot"]["cash_accepted_at_depot"] is False
+    assert body["operating_procedure"] == "NCPB Operating Circular 4B"
+
+
+def test_crop_type_is_optional_over_http(client, passing_request):
+    payload = dict(passing_request)
+    payload.pop("crop_type")
+
+    response = client.post("/api/triage", json=payload)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["verdict"]["status"] == "PROCEED"
+    assert body["crop_within_gazetted_scope"] is None
+
+
+def test_the_payment_rule_is_not_a_payment_integration(client, passing_request):
+    """
+    Naming a till number is an instruction. It must not become a field any
+    client could transact against.
+    """
+    notice = client.post("/api/triage", json=passing_request).json()["payment_notice"]
+    for forbidden in ("paybill", "till_number", "account_number", "phone", "stk", "url"):
+        assert forbidden not in notice
+
+
+def test_geo_constituencies_endpoint(client):
+    body = client.get(
+        "/api/geo/constituencies", params={"county": "Uasin Gishu"}
+    ).json()
+    assert body["county"] == "Uasin Gishu"
+    assert body["count"] == 6
+    names = [c["constituency_name"] for c in body["constituencies"]]
+    assert "Soy" in names
+    assert all(c["ward_count"] > 0 for c in body["constituencies"])
+
+
+def test_geo_constituencies_rejects_unknown_county(client):
+    response = client.get("/api/geo/constituencies", params={"county": "Wakanda"})
+    assert response.status_code == 404

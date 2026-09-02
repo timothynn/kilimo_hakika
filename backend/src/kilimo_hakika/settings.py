@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     dev_otp_code: str = "123456"
 
     # CLAUDE.md (merged 2026-09-02) states /check must work with no account.
-    # Login still gates history, tracking, market data and the assistant.
+    # Login still gates history, tracking and the assistant.
     allow_anonymous_triage: bool = True
 
     anthropic_api_key: str = ""

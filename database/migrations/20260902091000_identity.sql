@@ -95,7 +95,7 @@ alter table identity.organisation
   add constraint organisation_verified_fields
   check ((status = 'VERIFIED') = (verified_at is not null and verified_by is not null));
 
-comment on table identity.organisation is 'Retailers, wholesalers and supplier associations. Only VERIFIED organisations may publish into `market` - enforced by market.* policies.';
+comment on table identity.organisation is 'Retailers, wholesalers and supplier associations. Retained for identity and verification only: this platform has no marketplace, so no organisation publishes prices or listings anywhere in it.';
 
 -- ---------------------------------------------------------------------------
 -- Roles and permissions
@@ -144,26 +144,20 @@ insert into identity.permission (code, description) values
  ('triage.run',                  'Run a depot triage and receive a verdict'),
  ('triage.history.read.self',    'Read own triage history'),
  ('profile.write.self',          'Edit own profile'),
- ('market.read',                 'Read published supplier prices and demand/supply signals'),
- ('market.price.draft.own_org',  'Draft a price quote for own organisation'),
- ('market.price.publish.own_org','Publish or withdraw own organisation price quotes'),
- ('market.signal.publish.own_org','Publish demand and supply signals for own organisation'),
  ('org.member.manage.own_org',   'Invite and remove members of own organisation'),
  ('org.verify',                  'Verify or suspend an organisation'),
  ('policy.author',               'Create and edit statutory rules, prices and depots in kh'),
  ('policy.review',               'Review authored policy changes and their citations'),
  ('policy.publish',              'Build and publish a rule pack'),
  ('assistant.chat',              'Use the assistant'),
- ('analytics.read',              'Read aggregate triage and market analytics'),
+ ('analytics.read',              'Read aggregate triage analytics'),
  ('audit.read',                  'Read the audit trail'),
  ('user.suspend',                'Suspend or reinstate a user account');
 
 insert into identity.role (code, label, scope, description) values
  ('farmer',                 'Farmer',                      'SELF',         'Runs triage, keeps a profile and history'),
- ('org_staff',              'Business staff',              'ORGANISATION', 'Retail or wholesale staff: reads market data, drafts prices'),
+ ('org_staff',              'Business staff',              'ORGANISATION', 'Retail or wholesale staff: reads published policy'),
  ('org_admin',              'Business administrator',      'ORGANISATION', 'Manages members and publishes for the organisation'),
- ('supplier_price_editor',  'Supplier price editor',       'ORGANISATION', 'Drafts prices and signals for a supplier association'),
- ('supplier_publisher',     'Supplier publisher',          'ORGANISATION', 'Publishes the association''s prices and signals'),
  ('policy_author',          'Policy author',               'PLATFORM',     'Writes statutory rules and their citations'),
  ('policy_reviewer',        'Policy reviewer',             'PLATFORM',     'Checks a rule against its cited source'),
  ('policy_publisher',       'Policy publisher',            'PLATFORM',     'Builds and publishes rule packs'),
@@ -174,39 +168,25 @@ insert into identity.role (code, label, scope, description) values
 
 insert into identity.role_permission (role_code, permission_code) values
  ('farmer','triage.run'), ('farmer','triage.history.read.self'),
- ('farmer','profile.write.self'), ('farmer','market.read'), ('farmer','assistant.chat'),
-
- ('org_staff','market.read'), ('org_staff','market.price.draft.own_org'),
+ ('farmer','profile.write.self'), ('farmer','assistant.chat'),
  ('org_staff','assistant.chat'), ('org_staff','triage.run'),
-
- ('org_admin','market.read'), ('org_admin','market.price.draft.own_org'),
- ('org_admin','market.price.publish.own_org'), ('org_admin','market.signal.publish.own_org'),
  ('org_admin','org.member.manage.own_org'), ('org_admin','assistant.chat'), ('org_admin','triage.run'),
 
- ('supplier_price_editor','market.read'), ('supplier_price_editor','market.price.draft.own_org'),
- ('supplier_price_editor','assistant.chat'),
-
- ('supplier_publisher','market.read'), ('supplier_publisher','market.price.draft.own_org'),
- ('supplier_publisher','market.price.publish.own_org'), ('supplier_publisher','market.signal.publish.own_org'),
- ('supplier_publisher','assistant.chat'),
-
- ('policy_author','policy.author'), ('policy_author','market.read'), ('policy_author','triage.run'),
+ ('policy_author','policy.author'), ('policy_author','triage.run'),
  ('policy_reviewer','policy.review'), ('policy_reviewer','triage.run'),
  ('policy_publisher','policy.publish'), ('policy_publisher','policy.review'), ('policy_publisher','triage.run'),
 
- ('analyst','analytics.read'), ('analyst','market.read'),
- ('moderator','org.verify'), ('moderator','user.suspend'), ('moderator','market.read'),
+ ('analyst','analytics.read'),
+ ('moderator','org.verify'), ('moderator','user.suspend'),
 
- ('developer','audit.read'), ('developer','analytics.read'), ('developer','market.read'),
+ ('developer','audit.read'), ('developer','analytics.read'),
 
  ('platform_admin','org.verify'), ('platform_admin','user.suspend'),
- ('platform_admin','analytics.read'), ('platform_admin','audit.read'),
- ('platform_admin','market.read'), ('platform_admin','org.member.manage.own_org');
+ ('platform_admin','analytics.read'), ('platform_admin','audit.read'), ('platform_admin','org.member.manage.own_org');
 
 -- Deliberately absent from every role, including platform_admin:
 --   * policy.author / policy.review / policy.publish are never held together.
 --     A rule that decides whether a farmer travels gets two pairs of eyes.
---   * No role can write to `market` on behalf of another organisation.
 --   * No supplier role holds any policy.* permission. Nobody outside the
 --     platform can edit what the app presents as the law.
 
@@ -255,7 +235,7 @@ comment on function identity.has_permission is
 create table identity.consent (
   user_id        uuid not null references identity.app_user(id) on delete cascade,
   purpose        text not null
-                   check (purpose in ('ACCOUNT','ASSISTANT_AI','ANALYTICS','MARKET_NOTIFICATIONS')),
+                   check (purpose in ('ACCOUNT','ASSISTANT_AI','ANALYTICS')),
   policy_version text not null,
   granted_at     timestamptz not null default now(),
   withdrawn_at   timestamptz,

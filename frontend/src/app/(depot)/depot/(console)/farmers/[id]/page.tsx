@@ -19,7 +19,7 @@ import {
   listChecksForFarmer,
   listServiceRecords,
 } from "@/lib/db";
-import { loadRules } from "@/lib/triage/rules";
+import { DepotApiError, getDepots } from "@/lib/depot-api";
 
 import { recordServed } from "../../actions";
 
@@ -40,7 +40,19 @@ export default async function FarmerDetailPage({
 
   const checks = listChecksForFarmer(id);
   const served = listServiceRecords(id);
-  const depots = loadRules().depots;
+  // Depot names come from the same service that issues verdicts, so the ids
+  // recorded against a check always resolve here. Falls back to an empty list
+  // rather than failing the page: an officer must still be able to read a
+  // farmer's history when the verdict engine is down.
+  let depots: { id: string; name: string }[] = [];
+  try {
+    depots = (await getDepots()).depots.map((d) => ({
+      id: d.depot_id,
+      name: d.name,
+    }));
+  } catch (error) {
+    if (!(error instanceof DepotApiError)) throw error;
+  }
   const latest = checks[0];
 
   return (

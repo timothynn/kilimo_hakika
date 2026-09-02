@@ -5,7 +5,7 @@
   "distribution_agency": "National Cereals and Produce Board (NCPB)",
   "source_citation": "MOALD Circular 2026/02 & NCPB Operating Circular 4B",
   "circular": "MOALD Circular 2026/02",
-  "operating_procedure": "NCPB Circular 4B",
+  "operating_procedure": "NCPB Operating Circular 4B",
   "gazette_status": "GAZETTED",
   "effective_from": "2026-01-15",
   "effective_to": "2026-12-31",
@@ -15,7 +15,7 @@
     "bag_weight_kg": 50,
     "unit_label": "50kg bag",
     "price_basis": "Statutory subsidised price payable in person at the NCPB depot counter.",
-    "statutory_notice": "KES 2,500 per 50kg bag is the statutory subsidised price gazetted under MOALD Circular 2026/02. This figure is published for planning purposes only. Kilimo Hakika does not process payments, collect funds, hold money or connect to any mobile money service. Payment is made by the farmer in person at the NCPB depot counter and receipted by NCPB.",
+    "statutory_notice": "KES 2,500 per 50kg bag is the statutory subsidised price gazetted under MOALD Circular 2026/02. This figure is published for planning purposes only. CASH IS NOT ACCEPTED AT THE DEPOT - pay to the NCPB till number displayed at the depot or deposit at the bank the depot manager names (NCPB Operating Circular 4B, Section 5.1). Kilimo Hakika does not process payments, collect funds, hold money or connect to any mobile money service. Payment is made by the farmer directly to NCPB and receipted by NCPB.",
     "price_is_indicative_only": false,
     "payments_processed_by_this_service": false
   },
@@ -108,7 +108,7 @@
       "code": "id_photocopy_presented",
       "label": "Photocopy of National ID presented instead of the original",
       "reason": "NCPB depot clerks are barred from accepting photocopies of the National ID. Only the original document is accepted at the counter.",
-      "authority": "NCPB Circular 4B, Section 2.1",
+      "authority": "NCPB Operating Circular 4B, Section 2.1",
       "triggered_by_documents": [
         "national id photocopy",
         "id photocopy",
@@ -127,7 +127,7 @@
       "code": "expired_evoucher",
       "label": "Expired KIAMIS e-voucher",
       "reason": "An e-voucher past its validity window is void and cannot be redeemed. A fresh voucher must be requested through KIAMIS before travelling.",
-      "authority": "NCPB Circular 4B, Section 2.4",
+      "authority": "NCPB Operating Circular 4B, Section 2.4",
       "triggered_by_documents": [
         "expired kiamis e-voucher",
         "expired e-voucher",
@@ -144,7 +144,7 @@
       "code": "unstamped_lease_agreement",
       "label": "Unstamped lease agreement on leased land",
       "reason": "A lease agreement without the Area Chief's official stamp is not accepted as proof of cultivation rights on leased land.",
-      "authority": "NCPB Circular 4B, Section 3.2",
+      "authority": "NCPB Operating Circular 4B, Section 3.2",
       "triggered_by_documents": [
         "unstamped lease agreement",
         "unstamped lease",
@@ -232,5 +232,17 @@
       "kahawa": "coffee",
       "miwa": "sugarcane"
     }
+  },
+  "payment_at_depot": {
+    "cash_accepted_at_depot": false,
+    "headline": "Zero cash accepted at the depot",
+    "notice": "Cash is NOT accepted at any NCPB depot counter. Pay to the NCPB till number displayed at the depot, or deposit at the bank the depot manager names, and carry the receipt. Bring a phone able to complete the transfer. Kilimo Hakika does not process, hold or move any money - you pay NCPB directly and NCPB receipts you.",
+    "accepted_means": [
+      "NCPB till number displayed at the depot",
+      "Bank deposit slip from the bank named by the depot manager"
+    ],
+    "authority": "NCPB Operating Circular 4B, Section 5.1",
+    "verbatim_extract": "Cash payments at the depot shall NOT be accepted.",
+    "blocks_travel": false
   }
 }

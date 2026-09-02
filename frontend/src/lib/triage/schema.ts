@@ -12,8 +12,30 @@ export const triageInputSchema = z.object({
     .number({ message: "Enter your land size in acres" })
     .positive("Land size must be greater than zero")
     .max(1000, "Enter land size in acres — 1000 is the maximum this tool handles"),
+
+  // Where the holding is. The depot may only serve a farmer whose county is in
+  // its gazetted catchment, so the verdict cannot be reached without this.
+  county: z.string().trim().min(1, "Choose your county"),
+  constituency: z.string().trim().min(1, "Choose your constituency"),
+  ward: z.string().trim().min(1, "Choose your ward"),
+
   depotId: z.string().min(1, "Choose the depot you plan to travel to"),
-  heldDocuments: z.array(z.string()).default([]),
+
+  /**
+   * Tri-state on purpose. Original-versus-photocopy is one of the commonest
+   * reasons a farmer is turned away, and a single checkbox cannot express it:
+   * unticked would mean both "I have nothing" and "I have a photocopy", which
+   * need different advice.
+   */
+  nationalId: z.enum(["original", "photocopy", "none"], {
+    message: "Tell us what form of ID you have",
+  }),
+  hasEvoucher: z.boolean(),
+  hasWaoForm: z.boolean(),
+
+  isLandLeased: z.boolean(),
+  /** Only consulted when the land is leased. */
+  hasStampedLease: z.boolean(),
 });
 
 export type TriageInputPayload = z.infer<typeof triageInputSchema>;

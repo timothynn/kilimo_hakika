@@ -52,7 +52,7 @@ def test_complete_application_at_an_active_depot_proceeds():
     assert result["financial_breakdown"]["price_per_bag"] == 2500
     assert result["financial_breakdown"]["total_cost_kes"] == 45_000
     assert result["policy_grounding"]["circular"] == "MOALD Circular 2026/02"
-    assert result["policy_grounding"]["operating_procedure"] == "NCPB Circular 4B"
+    assert result["policy_grounding"]["operating_procedure"] == "NCPB Operating Circular 4B"
     assert result["policy_grounding"]["depot_status"].startswith("ACTIVE")
 
 
@@ -177,7 +177,7 @@ def test_every_rejection_reason_cites_its_authority():
     """A farmer, or an officer checking the answer, must be able to trace it."""
     result = triage(documents_held=[])
     for reason in result["gap_analysis"]["rejection_reasons"]:
-        assert "MOALD Circular 2026/02" in reason or "NCPB Circular 4B" in reason
+        assert "MOALD Circular 2026/02" in reason or "NCPB Operating Circular 4B" in reason
 
 
 # --------------------------------------------------------------------------
@@ -231,7 +231,7 @@ def test_id_photocopy_is_rejected():
     assert result["verdict"]["status"] == "DO_NOT_TRAVEL"
     reasons = " ".join(result["gap_analysis"]["rejection_reasons"])
     assert "photocopies" in reasons.lower()
-    assert "NCPB Circular 4B, Section 2.1" in reasons
+    assert "NCPB Operating Circular 4B, Section 2.1" in reasons
     # The photocopy also fails to satisfy the original-ID requirement.
     assert "Original National ID" in result["gap_analysis"]["missing_documents"]
 
@@ -248,7 +248,7 @@ def test_expired_voucher_is_rejected():
     assert result["verdict"]["status"] == "DO_NOT_TRAVEL"
     reasons = " ".join(result["gap_analysis"]["rejection_reasons"])
     assert "void" in reasons.lower()
-    assert "NCPB Circular 4B, Section 2.4" in reasons
+    assert "NCPB Operating Circular 4B, Section 2.4" in reasons
 
 
 # --------------------------------------------------------------------------
@@ -265,7 +265,7 @@ def test_leased_land_without_a_stamped_lease_is_rejected():
         in result["gap_analysis"]["missing_documents"]
     )
     assert any(
-        "NCPB Circular 4B, Section 3.2" in reason
+        "NCPB Operating Circular 4B, Section 3.2" in reason
         for reason in result["gap_analysis"]["rejection_reasons"]
     )
 
@@ -588,3 +588,77 @@ def test_no_payment_or_marketplace_language_appears_in_a_verdict():
 
     for forbidden in ("m-pesa", "mpesa", "pay now", "checkout", "add to cart", "buy from"):
         assert forbidden not in text
+
+
+# --------------------------------------------------------------------------
+# Statutory payment rule (cash refused at the depot counter)
+# --------------------------------------------------------------------------
+
+
+def test_cash_warning_is_present_on_a_proceed_verdict():
+    """
+    The farmer told to travel is the one about to leave the house, so this is
+    exactly when the cash rule has to be in front of them.
+    """
+    result = triage()
+    assert result["verdict"]["status"] == "PROCEED"
+
+    notice = result["payment_notice"]
+    assert notice["cash_accepted_at_depot"] is False
+    assert notice["headline"] == "Zero cash accepted at the depot"
+    assert "NCPB Operating Circular 4B" in notice["authority"]
+    assert notice["accepted_means"]
+
+
+def test_cash_warning_is_present_on_a_do_not_travel_verdict_too():
+    assert triage(documents_held=[])["payment_notice"]["cash_accepted_at_depot"] is False
+
+
+def test_proceed_next_steps_warn_against_carrying_cash():
+    steps = " ".join(triage()["next_steps"]).lower()
+    assert "not carry cash" in steps or "do not carry cash" in steps
+    assert "till number" in steps
+
+
+def test_statutory_notice_states_the_cash_rule():
+    notice = triage()["financial_breakdown"]["statutory_notice"]
+    assert "CASH IS NOT ACCEPTED AT THE DEPOT" in notice
+    # And still disclaims that we move money ourselves.
+    assert "does not process" in notice
+
+
+# --------------------------------------------------------------------------
+# Crop is optional
+# --------------------------------------------------------------------------
+
+
+def test_crop_may_be_omitted_entirely():
+    """The farmer wizard does not ask for a crop; omitting it must still work."""
+    result = triage(crop_type=None)
+
+    assert result["verdict"]["status"] == "PROCEED"
+    assert result["declared_crop"] is None
+    # Null, not False - "not declared" must never read as "outside the schedule".
+    assert result["crop_within_gazetted_scope"] is None
+
+
+def test_blank_crop_is_treated_as_not_declared():
+    assert triage(crop_type="   ")["crop_within_gazetted_scope"] is None
+
+
+def test_a_declared_crop_is_still_scope_checked():
+    assert triage(crop_type="maize")["crop_within_gazetted_scope"] is True
+    assert triage(crop_type="macadamia")["crop_within_gazetted_scope"] is False
+
+
+# --------------------------------------------------------------------------
+# Citation wording
+# --------------------------------------------------------------------------
+
+
+def test_operating_procedure_is_cited_in_full():
+    result = triage()
+    assert result["policy_grounding"]["operating_procedure"] == (
+        "NCPB Operating Circular 4B"
+    )
+    assert result["policy_grounding"]["circular"] == "MOALD Circular 2026/02"

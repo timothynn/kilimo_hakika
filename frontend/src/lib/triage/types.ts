@@ -16,7 +16,12 @@ export type DocumentGroupRule = {
 
 export type Allocation = {
   unit: string;
+  /** Statutory split: 2 planting + 2 top-dressing per acre. */
+  plantingBagsPerAcre: number;
+  topDressingBagsPerAcre: number;
+  /** The two above, summed. Held explicitly so the rules file stays the source. */
   bagsPerAcre: number;
+  /** Absolute statutory ceiling per farmer, not a per-depot limit. */
   maxBags: number;
   pricePerBagKes: number;
 };
@@ -29,19 +34,22 @@ export type Depot = {
   /** Document ids and/or documentGroup ids. */
   requires: string[];
   allocation: Allocation;
-  /**
-   * True when this depot's figures are a placeholder rather than a gazetted
-   * schedule. Provisional depots exist so every county is selectable; their
-   * caps, price and document list are the programme baseline, not policy, and
-   * `source` says so. The UI must label a provisional verdict as unverified.
-   */
-  provisional?: boolean;
+  source: string;
+};
+
+export type PaymentAtDepot = {
+  cashAccepted: boolean;
+  headline: string;
+  notice: string;
   source: string;
 };
 
 export type SchemeRules = {
   version: string;
   note?: string;
+  circular?: string;
+  operatingProcedure?: string;
+  paymentAtDepot?: PaymentAtDepot;
   documents: Record<DocumentId, DocumentRule>;
   documentGroups: Record<string, DocumentGroupRule>;
   depots: Depot[];
@@ -67,11 +75,13 @@ export type MissingRequirement = {
 
 export type Costing = {
   bags: number;
+  plantingBags: number;
+  topDressingBags: number;
   unit: string;
   pricePerBagKes: number;
   totalKes: number;
-  /** Whether the depot's ceiling bound the allocation rather than acreage. */
-  cappedByDepotCeiling: boolean;
+  /** Whether the statutory ceiling bound the allocation rather than acreage. */
+  cappedByStatutoryCeiling: boolean;
   maxBags: number;
   bagsPerAcre: number;
 };
@@ -83,8 +93,6 @@ export type TriageResult = {
     name: string;
     county: string;
     program: string;
-    /** See Depot.provisional. Carried through so the UI can warn. */
-    provisional?: boolean;
   };
   acres: number;
   missing: MissingRequirement[];

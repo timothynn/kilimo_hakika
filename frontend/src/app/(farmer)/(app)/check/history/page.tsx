@@ -14,7 +14,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { listChecksForFarmer } from "@/lib/db";
 import { currentFarmer } from "@/lib/session";
-import { loadRules } from "@/lib/triage/rules";
+import { DepotApiError, getDepots } from "@/lib/depot-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,7 +32,19 @@ export default async function CheckHistoryPage() {
   if (!farmer) redirect("/login");
 
   const checks = listChecksForFarmer(farmer.id);
-  const depots = loadRules().depots;
+  // Depot names come from the same service that issues verdicts, so the ids
+  // in a stored check always resolve against the current roster. If it is
+  // unreachable we fall back to the id rather than failing the page — this is
+  // a record of the past, not a verdict, so a bare id is survivable.
+  let depots: { id: string; name: string }[] = [];
+  try {
+    depots = (await getDepots()).depots.map((d) => ({
+      id: d.depot_id,
+      name: d.name,
+    }));
+  } catch (error) {
+    if (!(error instanceof DepotApiError)) throw error;
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8">

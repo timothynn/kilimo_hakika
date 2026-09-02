@@ -168,7 +168,7 @@ async def optional_caller(authorization: Annotated[str | None, Header()] = None)
     require signing in to get a verdict, the change is wrong." So the verdict
     path accepts no token, and so does the assistant - a signed-out visitor gets
     the public-policy tier of it (see assistant/scopes.py). What an account buys
-    is history, gap tracking, market data, and a verdict drawn from a saved
+    is history, gap tracking, and a verdict drawn from a saved
     profile.
     """
     if authorization:

@@ -210,7 +210,7 @@ export function ChatPill() {
               {signedIn === false && (
                 <p className="text-muted-foreground mt-1 text-xs">
                   Answering general questions about the rules. Sign in for your own depot
-                  check and market prices.
+                  check and your saved history.
                 </p>
               )}
             </div>
